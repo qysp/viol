@@ -1,7 +1,7 @@
 {
   "name": "ayce",
   "version": "0.0.1",
-  "main": "./build/index.js",
+  "main": "./lib/index.js",
   "author": "qysp",
   "license": "MIT",
   "scripts": {
