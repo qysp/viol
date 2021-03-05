@@ -1,0 +1,13 @@
+{
+  "name": "ayce",
+  "version": "0.0.1",
+  "main": "./build/index.js",
+  "author": "qysp",
+  "license": "MIT",
+  "scripts": {
+    "build": "tsc --build tsconfig.json"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3"
+  }
+}
