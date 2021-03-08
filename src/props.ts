@@ -1,6 +1,6 @@
 import { Mod, Props, PropTypes, Type } from './types';
 
-export const isValidProp = (propValue: unknown, propType: Type): boolean => {
+export const isValidProp = <T extends Type>(propValue: unknown, propType: T): propValue is ReturnType<T> => {
   switch (propType) {
     case String:
       return typeof propValue === 'string';

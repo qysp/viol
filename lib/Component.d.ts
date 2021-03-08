@@ -8,10 +8,10 @@ declare global {
 interface AlpineElement<E extends HTMLElement, S extends State, P extends Props> {
     __x: {
         $data: AlpineComponent<S, P>;
-        $el: E;
+        $el: AlpineElement<E, S, P>;
         membrane: Object;
         nextTickStack: any[];
-        showDirectiveLastElement?: E | HTMLElement;
+        showDirectiveLastElement?: E;
         showDirectiveStack: any[];
         unobservedData: AlpineComponent<S, P>;
         watchers: Record<string, Function[]>;

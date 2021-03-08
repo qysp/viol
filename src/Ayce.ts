@@ -1,25 +1,19 @@
 import { AlpineComponent } from './Component';
 import {
   ComponentDef,
-  CreateComponentProps,
+  TemplateArgs,
   Mod,
   PropType,
+  Substitute,
   TemplateFunction,
   Type,
 } from './types';
-
-export type Substitute<C extends AlpineComponent> =
-  | string
-  | number
-  | boolean
-  | AlpineComponent
-  | ((options: CreateComponentProps<C>) => AlpineComponent);
 
 export const required = (type: Type): PropType => [type, Mod.Required];
 export const withDefault = <T extends Type>(
   type: T,
   defaultValue: ReturnType<T>,
-): PropType => [type, Mod.Default, defaultValue];
+): PropType<T> => [type, Mod.Default, defaultValue];
 
 export function Component<C extends AlpineComponent>(def: ComponentDef<C>): ClassDecorator {
   return (target) => {
@@ -35,17 +29,15 @@ export const html = <C extends AlpineComponent>(
   strings: TemplateStringsArray,
   ...substitutes: Substitute<C>[]
 ): TemplateFunction<C> => {
-  return (options: CreateComponentProps<C>): string => {
+  return (args: TemplateArgs<C>): string => {
     return [...strings].reduce((html, string, index) => {
-      const substitute = substitutes[index];
-      if (substitute instanceof AlpineComponent) {
-        string += substitute.__getTemplate();
-      } else if (typeof substitute === 'function') {
-        const component = substitute(options);
-        string += component.__getTemplate();
-      } else {
-        string += substitute;
+      let substitute = substitutes[index];
+      if (typeof substitute === 'function') {
+        substitute = substitute(args);
       }
+      string += substitute instanceof AlpineComponent
+        ? substitute.__getTemplate()
+        : String(substitute);
       return html + string;
     }, '');
   };
