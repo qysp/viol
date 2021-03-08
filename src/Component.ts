@@ -1,6 +1,6 @@
 import { Props, PropTypes, State, Template } from './types';
 import { validateProps } from './props';
-import { uid } from './util';
+import { createFragment, uid } from './util';
 
 declare global {
   interface Window {
@@ -35,12 +35,6 @@ const defineAlpineComponent = (name: string, component: AlpineComponent) => {
   window.AlpineComponents[name] = component;
 };
 
-const createFragment = (html: string) => {
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  return template.content;
-}
-
 const createReactivity = <S extends State>(component: AlpineComponent, state: S): S => {
   return new Proxy(state, {
     get: (target, prop, receiver) => {
@@ -61,7 +55,7 @@ const createReactivity = <S extends State>(component: AlpineComponent, state: S)
       }
       return success;
     },
-  }) as S;
+  });
 }
 
 export class AlpineComponent<S extends State = {}, P extends Props = {}> {
@@ -69,8 +63,8 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
 
   template!: Template<AlpineComponent>;
   state!: S;
-  props: P;
-  propTypes?: PropTypes;
+  props!: P;
+  propTypes!: PropTypes;
 
   readonly $el!: AlpineElement<HTMLElement, S, P>;
   readonly $nextTick!: (callback: Function) => void;
@@ -80,30 +74,34 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   constructor(props?: P) {
     this.name = generateName(this);
     defineAlpineComponent(this.name, this);
-    this.props = validateProps<P>(props, this.propTypes);
-    this.state = createReactivity<S>(this, { ...this.state });
-    // Object.assign(this, { ...this.state });
+    this.props = validateProps(props, this.propTypes);
+    this.state = createReactivity(this, { ...this.state });
   }
+
+  protected onInit(): void {}
 
   /**
    * @private
    */
   __getTemplate(): string {
-    let html: string;
-    if (typeof this.template === 'function') {
-      html = this.template({
+    const html = typeof this.template === 'string'
+      ? this.template
+      : this.template({
         props: this.props,
         state: this.state,
         self: this,
       });
-    } else {
-      html = this.template;
-    }
     const fragment = createFragment(html);
-    fragment.firstElementChild?.setAttribute(
-      'x-data',
-      `AlpineComponents['${this.name}']`,
-    );
+
+    const root = fragment.firstElementChild;
+    if (root !== null) {
+      root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
+      let xInit = root.hasAttribute('x-init')
+        ? `${root.getAttribute('x-init')}; `
+        : '';
+      root.setAttribute('x-init', xInit + 'onInit()');
+    }
+
     return [...fragment.children].reduce((markup, child) => {
       return markup + child.outerHTML;
     }, '');

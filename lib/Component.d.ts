@@ -24,12 +24,13 @@ export declare class AlpineComponent<S extends State = {}, P extends Props = {}>
     template: Template<AlpineComponent>;
     state: S;
     props: P;
-    propTypes?: PropTypes;
+    propTypes: PropTypes;
     readonly $el: AlpineElement<HTMLElement, S, P>;
     readonly $nextTick: (callback: Function) => void;
     readonly $refs: Record<string, HTMLElement>;
     readonly $watch: (property: string, callback: Function) => void;
     constructor(props?: P);
+    protected onInit(): void;
     __getTemplate(): string;
 }
 export {};
