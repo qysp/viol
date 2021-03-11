@@ -1,10 +1,10 @@
 import { Props, PropTypes, State, Template } from './types';
 import { validateProps } from './props';
-import { createFragment, uid } from './util';
+import { createFragment, has, uid } from './util';
 
 declare global {
   interface Window {
-    AlpineComponents: Record<string, AlpineComponent<State, Props>>;
+    AlpineComponents: Record<string, AlpineComponent>;
     deferLoadingAlpine?: (callback: Function) => any;
   }
 }
@@ -29,8 +29,8 @@ const generateName = (component: AlpineComponent) => {
 }
 
 const defineAlpineComponent = (name: string, component: AlpineComponent) => {
-  if (!Object.prototype.hasOwnProperty.call(window, 'AlpineComponents')) {
-    window.AlpineComponents = {};
+  if (name in window.AlpineComponents) {
+    throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
   }
   window.AlpineComponents[name] = component;
 };
@@ -66,19 +66,19 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   props!: P;
   propTypes!: PropTypes;
 
+  parent?: AlpineComponent;
+
   readonly $el!: AlpineElement<HTMLElement, S, P>;
   readonly $nextTick!: (callback: Function) => void;
   readonly $refs!: Record<string, HTMLElement>;
   readonly $watch!: (property: string, callback: Function) => void;
 
-  constructor(props?: P) {
-    this.name = generateName(this);
+  constructor(props?: P, name?: string) {
+    this.name = name ?? generateName(this);
     defineAlpineComponent(this.name, this);
     this.props = validateProps(props, this.propTypes);
     this.state = createReactivity(this, { ...this.state });
   }
-
-  protected onInit(): void {}
 
   /**
    * @private
@@ -95,11 +95,15 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
 
     const root = fragment.firstElementChild;
     if (root !== null) {
+      // Register component for Alpine.
       root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
-      let xInit = root.hasAttribute('x-init')
-        ? `${root.getAttribute('x-init')}; `
-        : '';
-      root.setAttribute('x-init', xInit + 'onInit()');
+      // Add/append onInit method.
+      if (has(this, 'onInit') && typeof this.onInit === 'function') {
+        let xInit = root.hasAttribute('x-init')
+          ? `${root.getAttribute('x-init')}; `
+          : '';
+        root.setAttribute('x-init', xInit + 'onInit()');
+      }
     }
 
     return [...fragment.children].reduce((markup, child) => {

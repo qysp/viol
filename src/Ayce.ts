@@ -8,6 +8,7 @@ import {
   TemplateFunction,
   Type,
 } from './types';
+import { has } from './util';
 
 export const required = (type: Type): PropType => [type, Mod.Required];
 export const withDefault = <T extends Type>(
@@ -35,13 +36,23 @@ export const html = <C extends AlpineComponent>(
       if (typeof substitute === 'function') {
         substitute = substitute(args);
       }
-      string += substitute instanceof AlpineComponent
-        ? substitute.__getTemplate()
-        : String(substitute);
+      if (substitute instanceof AlpineComponent) {
+        substitute.parent = args.self;
+        string += substitute.__getTemplate()
+      } else {
+        string += String(substitute);
+      }
       return html + string;
     }, '');
   };
 };
+
+export const getComponent = (name: string): AlpineComponent | null => {
+  if (!has(window.AlpineComponents, name)) {
+    return null;
+  }
+  return window.AlpineComponents[name];
+}
 
 export const createApp = <C extends AlpineComponent>(component: C, root: HTMLElement) => {
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());

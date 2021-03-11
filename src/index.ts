@@ -1,1 +1,5 @@
-export * from './public_api';
+if (!('AlpineComponents' in window)) {
+  window.AlpineComponents = {};
+}
+
+export * from './public-api';
