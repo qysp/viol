@@ -1,4 +1,4 @@
-import { AlpineElement, Props, State, Template } from './types';
+import { AlpineElement, Props, State, Styles, Template } from './types';
 import { templateSymbol } from './constants';
 declare global {
     interface Window {
@@ -9,7 +9,7 @@ declare global {
 export declare class AlpineComponent<S extends State = {}, P extends Props = {}> {
     readonly name: string;
     template: Template<AlpineComponent>;
-    style?: string;
+    styles?: Styles<AlpineComponent>;
     state: S;
     props: P;
     parent?: AlpineComponent;
@@ -18,6 +18,7 @@ export declare class AlpineComponent<S extends State = {}, P extends Props = {}>
     readonly $refs: Record<string, HTMLElement>;
     readonly $watch: (property: string, callback: (value: unknown) => void) => void;
     constructor(props?: P, name?: string);
+    get selector(): string;
     protected onInit(): void | (() => void);
     protected onAfterInit(): void;
     [templateSymbol](): string;

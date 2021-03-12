@@ -1,9 +1,10 @@
 import { AlpineComponent } from './Component';
 import {
   ComponentDef,
-  TemplateArgs,
-  Substitute,
-  TemplateFunction,
+  SubstituteArgs,
+  SubstituteFunction,
+  TemplateSubstitute,
+  StylesSubstitute,
 } from './types';
 import { has } from './util';
 import { templateSymbol } from './constants';
@@ -12,7 +13,7 @@ export function Component<C extends AlpineComponent>(def: ComponentDef<C>): Clas
   return (target) => {
     Object.defineProperties(target.prototype, {
       template: { value: def.template },
-      style: { value: def.style },
+      styles: { value: def.styles },
       state: { value: def.state ?? {}, writable: true },
     });
   }
@@ -20,11 +21,11 @@ export function Component<C extends AlpineComponent>(def: ComponentDef<C>): Clas
 
 export const html = <C extends AlpineComponent>(
   strings: TemplateStringsArray,
-  ...substitutes: Substitute<C>[]
-): TemplateFunction<C> => {
-  return (args: TemplateArgs<C>): string => {
+  ...substitutes: TemplateSubstitute<C>[]
+): SubstituteFunction<C> => {
+  return (args: SubstituteArgs<C>): string => {
     return [...strings].reduce((html, string, index) => {
-      let substitute = substitutes[index];
+      let substitute = substitutes[index] ?? '';
       if (typeof substitute === 'function') {
         substitute = substitute(args);
       }
@@ -35,6 +36,21 @@ export const html = <C extends AlpineComponent>(
         string += String(substitute);
       }
       return html + string;
+    }, '');
+  };
+};
+
+export const css = <C extends AlpineComponent>(
+  strings: TemplateStringsArray,
+  ...substitutes: StylesSubstitute<C>[]
+): SubstituteFunction<C> => {
+  return (args: SubstituteArgs<C>): string => {
+    return [...strings].reduce((css, string, index) => {
+      let substitute = substitutes[index] ?? '';
+      if (typeof substitute === 'function') {
+        substitute = substitute(args);
+      }
+      return css + string + String(substitute);
     }, '');
   };
 };

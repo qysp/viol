@@ -1,4 +1,4 @@
-import { AlpineElement, Props, State, Template } from './types';
+import { AlpineElement, Props, State, Styles, Template } from './types';
 import { createFragment, uid } from './util';
 import { templateSymbol } from './constants';
 
@@ -47,7 +47,7 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   readonly name: string;
 
   template!: Template<AlpineComponent>;
-  style?: string;
+  styles?: Styles<AlpineComponent>;
   state!: S;
   props: P;
 
@@ -65,6 +65,10 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
     this.state = createReactivity(this, { ...this.state });
   }
 
+  get selector() {
+    return `[x-name="${this.name}"]`;
+  }
+
   protected onInit(): void | (() => void) {
     return () => this.onAfterInit();
   }
@@ -75,24 +79,30 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
    * @private
    */
   [templateSymbol](): string {
+    const templateArgs = {
+      props: this.props,
+      state: this.state,
+      self: this,
+    };
     const html = typeof this.template === 'string'
       ? this.template
-      : this.template({
-        props: this.props,
-        state: this.state,
-        self: this,
-      });
+      : this.template(templateArgs);
+    const styles = typeof this.styles !== 'function'
+      ? this.styles
+      : this.styles(templateArgs);
     const fragment = createFragment(html);
     const root = fragment.firstElementChild;
     if (root !== null) {
+      // Make this component queryable for css selectors.
+      root.setAttribute('x-name', this.name);
       // Register component for Alpine.
       root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
       // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
       root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
       // Insert style as first child of the root element.
-      if (this.style !== undefined) {
+      if (styles !== undefined) {
         const styleElement = document.createElement('style');
-        styleElement.innerHTML = this.style;
+        styleElement.innerHTML = styles;
         root.prepend(styleElement);
       }
     }

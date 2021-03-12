@@ -7,26 +7,34 @@ export type Props = Record<string, any>;
 
 export type ComponentDef<C extends AlpineComponent> = {
   template: Template<C>;
-  style?: string;
+  styles?: Styles<C>;
 } & IsEmpty<StateOf<C>, { state?: StateOf<C> }, { state: StateOf<C> }>;
 
 export type PropsOf<C> = C extends AlpineComponent<State, infer P> ? P : never;
 export type StateOf<C> = C extends AlpineComponent<infer S, Props> ? S : never;
 
-export type TemplateArgs<C extends AlpineComponent> = {
+export type SubstituteArgs<C extends AlpineComponent> = {
   state: StateOf<C>;
   props: PropsOf<C>;
   self: C;
 };
-export type TemplateFunction<C extends AlpineComponent = AlpineComponent> = (args: TemplateArgs<C>) => string;
-export type Template<C extends AlpineComponent> = string | TemplateFunction<C>;
+export type SubstituteFunction<C extends AlpineComponent = AlpineComponent> = (args: SubstituteArgs<C>) => string;
+export type Template<C extends AlpineComponent> = string | SubstituteFunction<C>;
+export type Styles<C extends AlpineComponent> = string | SubstituteFunction<C>;
 
-export type Substitute<C extends AlpineComponent> =
+export type Substitute =
   | string
   | number
-  | boolean
+  | boolean;
+
+export type TemplateSubstitute<C extends AlpineComponent> =
+  | Substitute
   | AlpineComponent
-  | ((args: TemplateArgs<C>) => AlpineComponent | string);
+  | ((args: SubstituteArgs<C>) => AlpineComponent | Substitute);
+
+export type StylesSubstitute<C extends AlpineComponent> =
+  | Substitute
+  | ((args: SubstituteArgs<C>) => Substitute);
 
 export interface AlpineElement<E extends HTMLElement, C extends AlpineComponent> {
   __x: {
