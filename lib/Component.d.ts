@@ -1,4 +1,4 @@
-import { Props, PropTypes, State, Template } from './types';
+import { Props, State, Template } from './types';
 declare global {
     interface Window {
         AlpineComponents: Record<string, AlpineComponent>;
@@ -24,7 +24,6 @@ export declare class AlpineComponent<S extends State = {}, P extends Props = {}>
     template: Template<AlpineComponent>;
     state: S;
     props: P;
-    propTypes: PropTypes;
     parent?: AlpineComponent;
     readonly $el: AlpineElement<HTMLElement, S, P>;
     readonly $nextTick: (callback: Function) => void;

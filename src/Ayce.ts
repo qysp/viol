@@ -2,26 +2,16 @@ import { AlpineComponent } from './Component';
 import {
   ComponentDef,
   TemplateArgs,
-  Mod,
-  PropType,
   Substitute,
   TemplateFunction,
-  Type,
 } from './types';
 import { has } from './util';
-
-export const required = (type: Type): PropType => [type, Mod.Required];
-export const withDefault = <T extends Type>(
-  type: T,
-  defaultValue: ReturnType<T>,
-): PropType<T> => [type, Mod.Default, defaultValue];
 
 export function Component<C extends AlpineComponent>(def: ComponentDef<C>): ClassDecorator {
   return (target) => {
     Object.defineProperties(target.prototype, {
       template: { value: def.template },
       state: { value: def.state ?? {}, writable: true },
-      propTypes: { value: def.propTypes ?? {} },
     });
   }
 }

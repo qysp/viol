@@ -1,5 +1,4 @@
-import { Props, PropTypes, State, Template } from './types';
-import { validateProps } from './props';
+import { Props, State, Template } from './types';
 import { createFragment, has, uid } from './util';
 
 declare global {
@@ -64,7 +63,6 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   template!: Template<AlpineComponent>;
   state!: S;
   props!: P;
-  propTypes!: PropTypes;
 
   parent?: AlpineComponent;
 
@@ -76,7 +74,7 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
     defineAlpineComponent(this.name, this);
-    this.props = validateProps(props, this.propTypes);
+    this.props = props ?? {} as P;
     this.state = createReactivity(this, { ...this.state });
   }
 
