@@ -7,6 +7,7 @@ export type Props = Record<string, any>;
 
 export type ComponentDef<C extends AlpineComponent> = {
   template: Template<C>;
+  style?: string;
 } & IsEmpty<StateOf<C>, { state?: StateOf<C> }, { state: StateOf<C> }>;
 
 export type PropsOf<C> = C extends AlpineComponent<State, infer P> ? P : never;

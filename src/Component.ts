@@ -47,8 +47,9 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   readonly name: string;
 
   template!: Template<AlpineComponent>;
+  style?: string;
   state!: S;
-  props!: P;
+  props: P;
 
   parent?: AlpineComponent;
 
@@ -88,6 +89,12 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
       root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
       // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
       root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
+      // Insert style as first child of the root element.
+      if (this.style !== undefined) {
+        const styleElement = document.createElement('style');
+        styleElement.innerHTML = this.style;
+        root.prepend(styleElement);
+      }
     }
     return [...fragment.children].reduce((markup, child) => {
       return markup + child.outerHTML;

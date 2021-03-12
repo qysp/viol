@@ -9,6 +9,7 @@ declare global {
 export declare class AlpineComponent<S extends State = {}, P extends Props = {}> {
     readonly name: string;
     template: Template<AlpineComponent>;
+    style?: string;
     state: S;
     props: P;
     parent?: AlpineComponent;

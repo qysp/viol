@@ -6,6 +6,7 @@ export declare type State = Record<string, any>;
 export declare type Props = Record<string, any>;
 export declare type ComponentDef<C extends AlpineComponent> = {
     template: Template<C>;
+    style?: string;
 } & IsEmpty<StateOf<C>, {
     state?: StateOf<C>;
 }, {

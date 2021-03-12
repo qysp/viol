@@ -12,6 +12,7 @@ export function Component<C extends AlpineComponent>(def: ComponentDef<C>): Clas
   return (target) => {
     Object.defineProperties(target.prototype, {
       template: { value: def.template },
+      style: { value: def.style },
       state: { value: def.state ?? {}, writable: true },
     });
   }
