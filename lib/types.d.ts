@@ -21,3 +21,22 @@ export declare type TemplateArgs<C extends AlpineComponent> = {
 export declare type TemplateFunction<C extends AlpineComponent = AlpineComponent> = (args: TemplateArgs<C>) => string;
 export declare type Template<C extends AlpineComponent> = string | TemplateFunction<C>;
 export declare type Substitute<C extends AlpineComponent> = string | number | boolean | AlpineComponent | ((args: TemplateArgs<C>) => AlpineComponent | string);
+export interface AlpineElement<E extends HTMLElement, C extends AlpineComponent> {
+    __x: {
+        $data: C;
+        $el: AlpineElement<E, C>;
+        membrane: object;
+        nextTickStack: (() => void)[];
+        pauseReactivity: boolean;
+        showDirectiveLastElement?: E;
+        showDirectiveStack: (() => void)[];
+        unobservedData: C;
+        watchers: Record<string, ((value: unknown) => void)[]>;
+        updateElement(el: HTMLElement, extraVars?: () => any): void;
+        updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
+    };
+    __x_original_classes?: string[];
+    __x_is_shown?: boolean;
+    __x_inserted_me?: boolean;
+    __x_for_key?: string;
+}

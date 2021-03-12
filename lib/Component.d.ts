@@ -1,23 +1,10 @@
-import { Props, State, Template } from './types';
+import { AlpineElement, Props, State, Template } from './types';
+import { templateSymbol } from './constants';
 declare global {
     interface Window {
         AlpineComponents: Record<string, AlpineComponent>;
         deferLoadingAlpine?: (callback: Function) => any;
     }
-}
-interface AlpineElement<E extends HTMLElement, S extends State, P extends Props> {
-    __x: {
-        $data: AlpineComponent<S, P>;
-        $el: AlpineElement<E, S, P>;
-        membrane: Object;
-        nextTickStack: any[];
-        showDirectiveLastElement?: E;
-        showDirectiveStack: any[];
-        unobservedData: AlpineComponent<S, P>;
-        watchers: Record<string, Function[]>;
-        updateElement(el: HTMLElement, extraVars?: () => any): void;
-        updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
-    };
 }
 export declare class AlpineComponent<S extends State = {}, P extends Props = {}> {
     readonly name: string;
@@ -25,11 +12,12 @@ export declare class AlpineComponent<S extends State = {}, P extends Props = {}>
     state: S;
     props: P;
     parent?: AlpineComponent;
-    readonly $el: AlpineElement<HTMLElement, S, P>;
-    readonly $nextTick: (callback: Function) => void;
+    readonly $el: AlpineElement<HTMLElement, this>;
+    readonly $nextTick: (callback: () => void) => void;
     readonly $refs: Record<string, HTMLElement>;
-    readonly $watch: (property: string, callback: Function) => void;
+    readonly $watch: (property: string, callback: (value: unknown) => void) => void;
     constructor(props?: P, name?: string);
-    __getTemplate(): string;
+    protected onInit(): void | (() => void);
+    protected onAfterInit(): void;
+    [templateSymbol](): string;
 }
-export {};

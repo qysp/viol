@@ -6,6 +6,7 @@ import {
   TemplateFunction,
 } from './types';
 import { has } from './util';
+import { templateSymbol } from './constants';
 
 export function Component<C extends AlpineComponent>(def: ComponentDef<C>): ClassDecorator {
   return (target) => {
@@ -28,7 +29,7 @@ export const html = <C extends AlpineComponent>(
       }
       if (substitute instanceof AlpineComponent) {
         substitute.parent = args.self;
-        string += substitute.__getTemplate()
+        string += substitute[templateSymbol]()
       } else {
         string += String(substitute);
       }
@@ -48,6 +49,6 @@ export const createApp = <C extends AlpineComponent>(component: C, root: HTMLEle
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());
   window.deferLoadingAlpine = (callback: Function) => {
     alpine(callback);
-    root.innerHTML = component.__getTemplate();
+    root.innerHTML = component[templateSymbol]();
   }
 };

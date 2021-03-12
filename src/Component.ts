@@ -1,5 +1,6 @@
-import { Props, State, Template } from './types';
-import { createFragment, has, uid } from './util';
+import { AlpineElement, Props, State, Template } from './types';
+import { createFragment, uid } from './util';
+import { templateSymbol } from './constants';
 
 declare global {
   interface Window {
@@ -8,26 +9,11 @@ declare global {
   }
 }
 
-interface AlpineElement<E extends HTMLElement, S extends State, P extends Props> {
-  __x: {
-    $data: AlpineComponent<S, P>;
-    $el: AlpineElement<E, S, P>;
-    membrane: Object;
-    nextTickStack: any[];
-    showDirectiveLastElement?: E;
-    showDirectiveStack: any[];
-    unobservedData: AlpineComponent<S, P>;
-    watchers: Record<string, Function[]>;
-    updateElement(el: HTMLElement, extraVars?: () => any): void;
-    updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
-  }
-}
-
-const generateName = (component: AlpineComponent) => {
+const generateName = <C extends AlpineComponent>(component: C): string => {
   return `${component.constructor.name}_${uid()}`;
 }
 
-const defineAlpineComponent = (name: string, component: AlpineComponent) => {
+const defineAlpineComponent = <C extends AlpineComponent>(name: string, component: C): void => {
   if (name in window.AlpineComponents) {
     throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
   }
@@ -66,10 +52,10 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
 
   parent?: AlpineComponent;
 
-  readonly $el!: AlpineElement<HTMLElement, S, P>;
-  readonly $nextTick!: (callback: Function) => void;
+  readonly $el!: AlpineElement<HTMLElement, this>;
+  readonly $nextTick!: (callback: () => void) => void;
   readonly $refs!: Record<string, HTMLElement>;
-  readonly $watch!: (property: string, callback: Function) => void;
+  readonly $watch!: (property: string, callback: (value: unknown) => void) => void;
 
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
@@ -78,10 +64,16 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
     this.state = createReactivity(this, { ...this.state });
   }
 
+  protected onInit(): void | (() => void) {
+    return () => this.onAfterInit();
+  }
+
+  protected onAfterInit(): void {}
+
   /**
    * @private
    */
-  __getTemplate(): string {
+  [templateSymbol](): string {
     const html = typeof this.template === 'string'
       ? this.template
       : this.template({
@@ -90,20 +82,13 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
         self: this,
       });
     const fragment = createFragment(html);
-
     const root = fragment.firstElementChild;
     if (root !== null) {
       // Register component for Alpine.
       root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
-      // Add/append onInit method.
-      if (has(this, 'onInit') && typeof this.onInit === 'function') {
-        let xInit = root.hasAttribute('x-init')
-          ? `${root.getAttribute('x-init')}; `
-          : '';
-        root.setAttribute('x-init', xInit + 'onInit()');
-      }
+      // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
+      root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
     }
-
     return [...fragment.children].reduce((markup, child) => {
       return markup + child.outerHTML;
     }, '');

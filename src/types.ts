@@ -26,3 +26,23 @@ export type Substitute<C extends AlpineComponent> =
   | boolean
   | AlpineComponent
   | ((args: TemplateArgs<C>) => AlpineComponent | string);
+
+export interface AlpineElement<E extends HTMLElement, C extends AlpineComponent> {
+  __x: {
+    $data: C;
+    $el: AlpineElement<E, C>;
+    membrane: object;
+    nextTickStack: (() => void)[];
+    pauseReactivity: boolean;
+    showDirectiveLastElement?: E;
+    showDirectiveStack: (() => void)[];
+    unobservedData: C;
+    watchers: Record<string, ((value: unknown) => void)[]>;
+    updateElement(el: HTMLElement, extraVars?: () => any): void;
+    updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
+  }
+  __x_original_classes?: string[];
+  __x_is_shown?: boolean;
+  __x_inserted_me?: boolean;
+  __x_for_key?: string;
+}
