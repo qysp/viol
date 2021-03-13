@@ -8,6 +8,7 @@ declare global {
 }
 export declare class AlpineComponent<S extends State = {}, P extends Props = {}> {
     readonly name: string;
+    readonly selector: string;
     template: Template<AlpineComponent>;
     styles?: Styles<AlpineComponent>;
     state: S;
@@ -18,7 +19,6 @@ export declare class AlpineComponent<S extends State = {}, P extends Props = {}>
     readonly $refs: Record<string, HTMLElement>;
     readonly $watch: (property: string, callback: (value: unknown) => void) => void;
     constructor(props?: P, name?: string);
-    get selector(): string;
     protected onInit(): void | (() => void);
     protected onAfterInit(): void;
     [templateSymbol](): string;

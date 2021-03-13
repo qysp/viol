@@ -1,4 +1,11 @@
-import { AlpineElement, Props, State, Styles, Template } from './types';
+import {
+  AlpineElement,
+  Props,
+  State,
+  Styles,
+  SubstituteArgs,
+  Template,
+} from './types';
 import { createFragment, uid } from './util';
 import { templateSymbol } from './constants';
 
@@ -11,6 +18,19 @@ declare global {
 
 const generateName = <C extends AlpineComponent>(component: C): string => {
   return `${component.constructor.name}_${uid()}`;
+}
+
+const process = (
+  subject: Styles<any> | Template<any>,
+  args: SubstituteArgs<any>,
+): string => {
+  if (typeof subject === 'function') {
+    subject = subject(args);
+  }
+  if (typeof subject === 'string') {
+    return subject;
+  }
+  return subject.process(args)
 }
 
 const defineAlpineComponent = <C extends AlpineComponent>(name: string, component: C): void => {
@@ -45,6 +65,7 @@ const createReactivity = <S extends State>(component: AlpineComponent, state: S)
 
 export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   readonly name: string;
+  readonly selector: string;
 
   template!: Template<AlpineComponent>;
   styles?: Styles<AlpineComponent>;
@@ -60,13 +81,10 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
 
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
+    this.selector = `[x-name="${this.name}"]`;
     defineAlpineComponent(this.name, this);
     this.props = props ?? {} as P;
     this.state = createReactivity(this, { ...this.state });
-  }
-
-  get selector() {
-    return `[x-name="${this.name}"]`;
   }
 
   protected onInit(): void | (() => void) {
@@ -79,17 +97,12 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
    * @private
    */
   [templateSymbol](): string {
-    const templateArgs = {
+    const substituteArgs: SubstituteArgs<AlpineComponent> = {
       props: this.props,
       state: this.state,
       self: this,
     };
-    const html = typeof this.template === 'string'
-      ? this.template
-      : this.template(templateArgs);
-    const styles = typeof this.styles !== 'function'
-      ? this.styles
-      : this.styles(templateArgs);
+    const html = process(this.template, substituteArgs);
     const fragment = createFragment(html);
     const root = fragment.firstElementChild;
     if (root !== null) {
@@ -100,9 +113,9 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
       // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
       root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
       // Insert style as first child of the root element.
-      if (styles !== undefined) {
+      if (this.styles !== undefined) {
         const styleElement = document.createElement('style');
-        styleElement.innerHTML = styles;
+        styleElement.innerHTML = process(this.styles, substituteArgs);
         root.prepend(styleElement);
       }
     }

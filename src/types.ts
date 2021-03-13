@@ -1,4 +1,5 @@
 import { AlpineComponent } from './Component';
+import { CssProcessor, HtmlProcessor } from './processors';
 
 export type IsEmpty<T, Y = true, N = false> = T extends { [key: string]: never } ? Y : N;
 
@@ -18,9 +19,10 @@ export type SubstituteArgs<C extends AlpineComponent> = {
   props: PropsOf<C>;
   self: C;
 };
-export type SubstituteFunction<C extends AlpineComponent = AlpineComponent> = (args: SubstituteArgs<C>) => string;
-export type Template<C extends AlpineComponent> = string | SubstituteFunction<C>;
-export type Styles<C extends AlpineComponent> = string | SubstituteFunction<C>;
+export type TemplateFunction<C extends AlpineComponent> = (args: SubstituteArgs<C>) => string | HtmlProcessor<C>;
+export type StylesFunction<C extends AlpineComponent> = (args: SubstituteArgs<C>) => string | CssProcessor<C>;
+export type Template<C extends AlpineComponent> = string | HtmlProcessor<C> | TemplateFunction<C>;
+export type Styles<C extends AlpineComponent> = string | CssProcessor<C> | StylesFunction<C>;
 
 export type Substitute =
   | string
@@ -34,7 +36,8 @@ export type TemplateSubstitute<C extends AlpineComponent> =
 
 export type StylesSubstitute<C extends AlpineComponent> =
   | Substitute
-  | ((args: SubstituteArgs<C>) => Substitute);
+  | C
+  | ((args: SubstituteArgs<C>) => C | Substitute);
 
 export interface AlpineElement<E extends HTMLElement, C extends AlpineComponent> {
   __x: {
