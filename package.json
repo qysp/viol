@@ -4,6 +4,7 @@
   "main": "./lib/index.js",
   "author": "qysp",
   "license": "MIT",
+  "repository": "https://github.com/qysp/ayce",
   "scripts": {
     "build": "tsc --build tsconfig.json"
   },
