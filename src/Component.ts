@@ -103,14 +103,15 @@ export class AyceComponent<S extends State = {}, P extends Props = {}> {
       root.setAttribute('x-name', this.name);
       // Register component for Alpine.
       root.setAttribute('x-data', `AyceComponents.get('${this.name}')`);
-      // Insert style as first child of the root element.
-      if (this.styles !== undefined) {
-        const styleElement = document.createElement('style');
-        styleElement.innerHTML = process(this.styles, substituteArgs);
-        root.prepend(styleElement);
-      }
     }
-    return [...fragment.children].reduce((markup, child) => {
+    // Insert style as a child of the document's head element.
+    // TODO: We should aggregate all styles and merge them in a single style element.
+    if (this.styles !== undefined) {
+      const styleElement = document.createElement('style');
+      styleElement.innerHTML = process(this.styles, substituteArgs);
+      document.head.appendChild(styleElement);
+    }
+    return Array.from(fragment.children).reduce((markup, child) => {
       return markup + child.outerHTML;
     }, '');
   }
