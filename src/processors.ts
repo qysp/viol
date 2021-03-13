@@ -1,19 +1,19 @@
-import { AlpineComponent } from './Component';
+import { AyceComponent } from './Component';
 import { StylesSubstitute, Substitute, SubstituteArgs, TemplateSubstitute } from './types';
 import { templateSymbol } from './constants';
 
-export abstract class Processor<C extends AlpineComponent> {
+export abstract class Processor<C extends AyceComponent> {
   abstract process(args: SubstituteArgs<C>): string;
 }
 
 const ensureArray = (
-  substitute: Substitute | Substitute[] | AlpineComponent | AlpineComponent[],
-): [(Substitute | AlpineComponent)] | AlpineComponent[] | Substitute[] => {
+  substitute: Substitute | Substitute[] | AyceComponent<any, any> | AyceComponent<any, any>[],
+): [(Substitute | AyceComponent<any, any>)] | AyceComponent<any, any>[] | Substitute[] => {
   return Array.isArray(substitute) ? substitute : [substitute];
 }
 
 
-export class HtmlProcessor<C extends AlpineComponent> extends Processor<C> {
+export class HtmlProcessor<C extends AyceComponent> extends Processor<C> {
   constructor(
     private strings: string[],
     private substitutes: TemplateSubstitute<C>[],
@@ -28,7 +28,7 @@ export class HtmlProcessor<C extends AlpineComponent> extends Processor<C> {
         substitute = substitute(args);
       }
       for (const item of ensureArray(substitute)) {
-        if (item instanceof AlpineComponent) {
+        if (item instanceof AyceComponent) {
           item.parent = args.self;
           string += item[templateSymbol]()
         } else {
@@ -40,7 +40,7 @@ export class HtmlProcessor<C extends AlpineComponent> extends Processor<C> {
   }
 }
 
-export class CssProcessor<C extends AlpineComponent> extends Processor<C> {
+export class CssProcessor<C extends AyceComponent> extends Processor<C> {
   constructor(
     private strings: string[],
     private substitutes: StylesSubstitute<C>[],
@@ -54,7 +54,7 @@ export class CssProcessor<C extends AlpineComponent> extends Processor<C> {
       if (typeof substitute === 'function') {
         substitute = substitute(args);
       }
-      string += substitute instanceof AlpineComponent
+      string += substitute instanceof AyceComponent
         ? substitute.selector
         : String(substitute)
       return css + string;

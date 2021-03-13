@@ -1,7 +1,7 @@
-import { AlpineComponent } from './Component';
+import { AyceComponent } from './Component';
 
-if (!('AlpineComponents' in window)) {
-  window.AlpineComponents = new Map<string, AlpineComponent>();
+if (!('AyceComponents' in window)) {
+  window.AyceComponents = new Map<string, AyceComponent<any, any>>();
 }
 
 export * from './public-api';

@@ -1,4 +1,5 @@
 import {
+  Alpine,
   AlpineElement,
   Props,
   State,
@@ -11,12 +12,13 @@ import { templateSymbol } from './constants';
 
 declare global {
   interface Window {
-    AlpineComponents: Map<string, AlpineComponent>;
+    Alpine: Alpine;
+    AyceComponents: Map<string, AyceComponent<any, any>>;
     deferLoadingAlpine?: (callback: Function) => any;
   }
 }
 
-const generateName = <C extends AlpineComponent>(component: C): string => {
+const generateName = <C extends AyceComponent>(component: C): string => {
   return `${component.constructor.name}_${uid()}`;
 }
 
@@ -33,14 +35,14 @@ const process = (
   return subject.process(args)
 }
 
-const defineAlpineComponent = <C extends AlpineComponent>(name: string, component: C): void => {
-  if (window.AlpineComponents.has(name)) {
+const defineAyceComponent = <C extends AyceComponent>(name: string, component: C): void => {
+  if (window.AyceComponents.has(name)) {
     throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
   }
-  window.AlpineComponents.set(name, component);
+  window.AyceComponents.set(name, component);
 };
 
-const createReactivity = <S extends State>(component: AlpineComponent, state: S): S => {
+const createReactivity = <S extends State>(component: AyceComponent<any, any>, state: S): S => {
   return new Proxy(state, {
     get: (target, prop, receiver) => {
       // console.debug(`[${component.name}] Get state:`, target, prop);
@@ -63,16 +65,16 @@ const createReactivity = <S extends State>(component: AlpineComponent, state: S)
   });
 }
 
-export class AlpineComponent<S extends State = {}, P extends Props = {}> {
+export class AyceComponent<S extends State = {}, P extends Props = {}> {
   readonly name: string;
   readonly selector: string;
 
-  template!: Template<AlpineComponent>;
-  styles?: Styles<AlpineComponent>;
+  template!: Template<AyceComponent<any, any>>;
+  styles?: Styles<AyceComponent<any, any>>;
   state!: S;
   props: P;
 
-  parent?: AlpineComponent;
+  parent?: AyceComponent<any, any>;
 
   readonly $el!: AlpineElement<HTMLElement, this>;
   readonly $nextTick!: (callback: () => void) => void;
@@ -82,19 +84,13 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
     this.selector = `[x-name="${this.name}"]`;
-    defineAlpineComponent(this.name, this);
+    defineAyceComponent(this.name, this);
     this.props = props ?? {} as P;
     this.state = createReactivity(this, { ...this.state });
   }
 
-  protected onInit(): void | (() => void) {
-    return () => this.onAfterInit();
-  }
-
-  protected onAfterInit(): void {}
-
   [templateSymbol](): string {
-    const substituteArgs: SubstituteArgs<AlpineComponent> = {
+    const substituteArgs: SubstituteArgs<AyceComponent<any, any>> = {
       props: this.props,
       state: this.state,
       self: this,
@@ -106,9 +102,7 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
       // Make this component queryable for css selectors.
       root.setAttribute('x-name', this.name);
       // Register component for Alpine.
-      root.setAttribute('x-data', `AlpineComponents.get('${this.name}')`);
-      // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
-      root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
+      root.setAttribute('x-data', `AyceComponents.get('${this.name}')`);
       // Insert style as first child of the root element.
       if (this.styles !== undefined) {
         const styleElement = document.createElement('style');
@@ -120,4 +114,9 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
       return markup + child.outerHTML;
     }, '');
   }
+}
+
+export interface AyceComponent {
+  onInit?(): void;
+  onAfterInit?(): void;
 }

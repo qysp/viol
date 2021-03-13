@@ -1,9 +1,9 @@
-import { AlpineComponent } from './Component';
+import { AyceComponent } from './Component';
 import { ComponentDef, StylesSubstitute, TemplateSubstitute } from './types';
 import { templateSymbol } from './constants';
 import { CssProcessor, HtmlProcessor } from './processors';
 
-export function Component<C extends AlpineComponent>(def: ComponentDef<C>): ClassDecorator {
+export function Component<C extends AyceComponent>(def: ComponentDef<C>): ClassDecorator {
   return (target) => {
     Object.defineProperties(target.prototype, {
       template: { value: def.template },
@@ -16,28 +16,38 @@ export function Component<C extends AlpineComponent>(def: ComponentDef<C>): Clas
   }
 }
 
-export const html = <C extends AlpineComponent>(
+export const html = <C extends AyceComponent>(
   strings: TemplateStringsArray,
   ...substitutes: TemplateSubstitute<C>[]
 ): HtmlProcessor<C> => {
   return new HtmlProcessor([...strings], substitutes);
 };
 
-export const css = <C extends AlpineComponent>(
+export const css = <C extends AyceComponent>(
   strings: TemplateStringsArray,
   ...substitutes: StylesSubstitute<C>[]
 ): CssProcessor<C> => {
   return new CssProcessor([...strings], substitutes);
 };
 
-export const getComponent = (name: string): AlpineComponent | null => {
-  return window.AlpineComponents.get(name) ?? null;
+export const getComponent = (name: string): AyceComponent<any, any> | null => {
+  return window.AyceComponents.get(name) ?? null;
 }
 
-export const createApp = <C extends AlpineComponent>(component: C, root: HTMLElement) => {
+export const createApp = <C extends AyceComponent>(component: C, root: HTMLElement) => {
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());
   window.deferLoadingAlpine = (callback: Function) => {
-    alpine(callback);
     root.innerHTML = component[templateSymbol]();
+    window.Alpine.onBeforeComponentInitialized((component) => {
+      if (typeof component.$data.onInit === 'function') {
+        component.$data.onInit();
+      }
+    });
+    window.Alpine.onComponentInitialized((component) => {
+      if (typeof component.$data.onAfterInit === 'function') {
+        component.$data.onAfterInit();
+      }
+    });
+    alpine(callback);
   }
 };
