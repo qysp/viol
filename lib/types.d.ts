@@ -25,7 +25,7 @@ export declare type StylesFunction<C extends AlpineComponent> = (args: Substitut
 export declare type Template<C extends AlpineComponent> = string | HtmlProcessor<C> | TemplateFunction<C>;
 export declare type Styles<C extends AlpineComponent> = string | CssProcessor<C> | StylesFunction<C>;
 export declare type Substitute = string | number | boolean;
-export declare type TemplateSubstitute<C extends AlpineComponent> = Substitute | AlpineComponent | ((args: SubstituteArgs<C>) => AlpineComponent | Substitute);
+export declare type TemplateSubstitute<C extends AlpineComponent> = Substitute | Substitute[] | AlpineComponent | AlpineComponent[] | ((args: SubstituteArgs<C>) => AlpineComponent | Substitute);
 export declare type StylesSubstitute<C extends AlpineComponent> = Substitute | C | ((args: SubstituteArgs<C>) => C | Substitute);
 export interface AlpineElement<E extends HTMLElement, C extends AlpineComponent> {
     __x: {

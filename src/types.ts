@@ -31,7 +31,9 @@ export type Substitute =
 
 export type TemplateSubstitute<C extends AlpineComponent> =
   | Substitute
+  | Substitute[]
   | AlpineComponent
+  | AlpineComponent[]
   | ((args: SubstituteArgs<C>) => AlpineComponent | Substitute);
 
 export type StylesSubstitute<C extends AlpineComponent> =

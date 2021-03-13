@@ -1,10 +1,17 @@
 import { AlpineComponent } from './Component';
-import { StylesSubstitute, SubstituteArgs, TemplateSubstitute } from './types';
+import { StylesSubstitute, Substitute, SubstituteArgs, TemplateSubstitute } from './types';
 import { templateSymbol } from './constants';
 
 export abstract class Processor<C extends AlpineComponent> {
   abstract process(args: SubstituteArgs<C>): string;
 }
+
+const ensureArray = (
+  substitute: Substitute | Substitute[] | AlpineComponent | AlpineComponent[],
+): [(Substitute | AlpineComponent)] | AlpineComponent[] | Substitute[] => {
+  return Array.isArray(substitute) ? substitute : [substitute];
+}
+
 
 export class HtmlProcessor<C extends AlpineComponent> extends Processor<C> {
   constructor(
@@ -20,11 +27,13 @@ export class HtmlProcessor<C extends AlpineComponent> extends Processor<C> {
       if (typeof substitute === 'function') {
         substitute = substitute(args);
       }
-      if (substitute instanceof AlpineComponent) {
-        substitute.parent = args.self;
-        string += substitute[templateSymbol]()
-      } else {
-        string += String(substitute);
+      for (const item of ensureArray(substitute)) {
+        if (item instanceof AlpineComponent) {
+          item.parent = args.self;
+          string += item[templateSymbol]()
+        } else {
+          string += String(item);
+        }
       }
       return html + string;
     }, '');
