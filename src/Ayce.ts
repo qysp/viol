@@ -1,6 +1,5 @@
 import { AlpineComponent } from './Component';
 import { ComponentDef, StylesSubstitute, TemplateSubstitute } from './types';
-import { has } from './util';
 import { templateSymbol } from './constants';
 import { CssProcessor, HtmlProcessor } from './processors';
 
@@ -32,10 +31,7 @@ export const css = <C extends AlpineComponent>(
 };
 
 export const getComponent = (name: string): AlpineComponent | null => {
-  if (!has(window.AlpineComponents, name)) {
-    return null;
-  }
-  return window.AlpineComponents[name];
+  return window.AlpineComponents.get(name) ?? null;
 }
 
 export const createApp = <C extends AlpineComponent>(component: C, root: HTMLElement) => {

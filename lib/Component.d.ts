@@ -2,7 +2,7 @@ import { AlpineElement, Props, State, Styles, Template } from './types';
 import { templateSymbol } from './constants';
 declare global {
     interface Window {
-        AlpineComponents: Record<string, AlpineComponent>;
+        AlpineComponents: Map<string, AlpineComponent>;
         deferLoadingAlpine?: (callback: Function) => any;
     }
 }

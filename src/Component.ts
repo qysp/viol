@@ -11,7 +11,7 @@ import { templateSymbol } from './constants';
 
 declare global {
   interface Window {
-    AlpineComponents: Record<string, AlpineComponent>;
+    AlpineComponents: Map<string, AlpineComponent>;
     deferLoadingAlpine?: (callback: Function) => any;
   }
 }
@@ -34,10 +34,10 @@ const process = (
 }
 
 const defineAlpineComponent = <C extends AlpineComponent>(name: string, component: C): void => {
-  if (name in window.AlpineComponents) {
+  if (window.AlpineComponents.has(name)) {
     throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
   }
-  window.AlpineComponents[name] = component;
+  window.AlpineComponents.set(name, component);
 };
 
 const createReactivity = <S extends State>(component: AlpineComponent, state: S): S => {
@@ -93,9 +93,6 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
 
   protected onAfterInit(): void {}
 
-  /**
-   * @private
-   */
   [templateSymbol](): string {
     const substituteArgs: SubstituteArgs<AlpineComponent> = {
       props: this.props,
@@ -109,7 +106,7 @@ export class AlpineComponent<S extends State = {}, P extends Props = {}> {
       // Make this component queryable for css selectors.
       root.setAttribute('x-name', this.name);
       // Register component for Alpine.
-      root.setAttribute('x-data', `AlpineComponents['${this.name}']`);
+      root.setAttribute('x-data', `AlpineComponents.get('${this.name}')`);
       // Workaround to ensure the result of Alpine's `saferEval` is always our onAfterInit method.
       root.setAttribute('x-init', 'onInit() ? onAfterInit : onAfterInit');
       // Insert style as first child of the root element.

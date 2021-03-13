@@ -9,10 +9,3 @@ export const createFragment = (html: string): DocumentFragment => {
   template.innerHTML = html;
   return template.content;
 };
-
-export const has = <O extends {}, P extends string | number>(
-  obj: O,
-  prop: P,
-): obj is O & Record<P, O[keyof O]> => {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-};
