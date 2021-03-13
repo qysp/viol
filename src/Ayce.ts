@@ -37,6 +37,7 @@ export const getComponent = (name: string): AyceComponent<any, any> | null => {
 export const createApp = <C extends AyceComponent>(component: C, root: HTMLElement) => {
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());
   window.deferLoadingAlpine = (callback: Function) => {
+    alpine(callback);
     root.innerHTML = component[templateSymbol]();
     window.Alpine.onBeforeComponentInitialized((component) => {
       if (typeof component.$data.onInit === 'function') {
@@ -48,6 +49,5 @@ export const createApp = <C extends AyceComponent>(component: C, root: HTMLEleme
         component.$data.onAfterInit();
       }
     });
-    alpine(callback);
   }
 };
