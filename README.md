@@ -1,8 +1,10 @@
 # Ayce
 
-This library lets you write components for Alpine.js in TypeScript while also giving you some additional features and syntactic sugar.
+Ayce is a lightweight framework for [Alpine.js](https://github.com/alpinejs/alpine).
 
-## Additional features
+> Take everything with a grain of salt, this is just a fun project and not meant to be used in production (yet?).
+
+## Features
 
 ### Magic `onInit` and `onAfterInit` methods
 
@@ -42,21 +44,24 @@ Using the `css` tag you can use the component's selector and therefore make the 
 
 </details>
 
-### Providing the `parent` property
+### Native `parent` property
 
 If your component is not the root component which is rendered into the DOM using `createApp`, you will have a `parent` property in your component that will return the parent component in which this instance is rendered in.
-Note: this property is not assigned until `createApp` is called, and the templates are processed.
+
+> Note: this property is not assigned until `createApp` is called, and the templates are processed.
 
 ### Utility function to access other components
 
 The standalone utility function `getComponent` will give you native access to a component anywhere in the DOM.
 To make use of it, give the component you wish to access a name in its constructor like so `new App({ some: 'props'}, 'MyAwesomeApp'}` and access it from other components with `getComponent('MyAwesomeApp')`.
-Note: this function will return `null` if the name was not found.
+
+> Note: this function will return `null` if the name was not found.
 
 ### Custom state management system
 
 Ayce comes with an awesome custom management system for your component's state. It allows you to use deeply nested objects and arrays and reliably update the affected components.
-Okay, just kidding. This 'feature' will probably be removed in the future.
+
+Okay, just kidding. This _feature_ will hopefully be removed in the future.
 
 <details>
 
@@ -121,3 +126,4 @@ Checkout [Ayce Examples](https://github.com/qysp/ayce-examples) for a demo.
 
 - [ ] Merge all component styles into one `style` element
 - [ ] Remove the custom state management system
+- [ ] Enhance typing for the `Component` decorator (no more `@Component<MyComponent>()`)
