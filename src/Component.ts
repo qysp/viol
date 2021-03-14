@@ -65,21 +65,27 @@ const createReactivity = <S extends State>(component: AyceComponent<any, any>, s
   });
 }
 
-export class AyceComponent<S extends State = {}, P extends Props = {}> {
-  readonly name: string;
-  readonly selector: string;
-
-  template!: Template<AyceComponent<any, any>>;
+export interface AyceComponent<S extends State, P extends Props> {
+  template: Template<AyceComponent<any, any>>;
   styles?: Styles<AyceComponent<any, any>>;
-  state!: S;
+  state: S;
   props: P;
 
   parent?: AyceComponent<any, any>;
 
-  readonly $el!: AlpineElement<HTMLElement, this>;
-  readonly $nextTick!: (callback: () => void) => void;
-  readonly $refs!: Record<string, HTMLElement>;
-  readonly $watch!: (property: string, callback: (value: unknown) => void) => void;
+  readonly $el: AlpineElement<HTMLElement, this>;
+  readonly $nextTick: (callback: () => void) => void;
+  readonly $refs: Record<string, HTMLElement>;
+  readonly $watch: (property: string, callback: (value: unknown) => void) => void;
+
+  onInit?(): void;
+  onAfterInit?(): void;
+  [templateSymbol](): string;
+}
+
+export class AyceComponent<S extends State = {}, P extends Props = {}> {
+  readonly name: string;
+  readonly selector: string;
 
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
@@ -115,9 +121,4 @@ export class AyceComponent<S extends State = {}, P extends Props = {}> {
       return markup + child.outerHTML;
     }, '');
   }
-}
-
-export interface AyceComponent {
-  onInit?(): void;
-  onAfterInit?(): void;
 }

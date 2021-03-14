@@ -1,6 +1,8 @@
 /.idea/
 /src/
+/dist/
 
 tsconfig.json
+rollup.config.js
 
 *.lock

@@ -1,7 +1,10 @@
 {
   "name": "ayce",
-  "version": "0.0.3",
-  "main": "./lib/index.js",
+  "version": "0.0.4",
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
   "author": "qysp",
   "license": "MIT",
   "repository": {
@@ -17,9 +20,13 @@
     "typescript"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.json"
+    "build": "rollup -c"
   },
   "devDependencies": {
+    "@rollup/plugin-typescript": "^8.2.0",
+    "rollup": "^2.41.2",
+    "rollup-plugin-dts": "^3.0.1",
+    "tslib": "^2.1.0",
     "typescript": "^4.2.3"
   }
 }

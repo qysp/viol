@@ -1,7 +1,10 @@
 import { AyceComponent } from './Component';
 import { CssProcessor, HtmlProcessor } from './processors';
 
-export type IsEmpty<T, Y = true, N = false> = T extends { [key: string]: never } ? Y : N;
+type IsEmpty<T, Y = true, N = false> = T extends { [key: string]: never } ? Y : N;
+
+type PropsOf<C> = C extends AyceComponent<State, infer P> ? P : never;
+type StateOf<C> = C extends AyceComponent<infer S, Props> ? S : never;
 
 export type State = Record<string, any>;
 export type Props = Record<string, any>;
@@ -11,16 +14,15 @@ export type ComponentDef<C extends AyceComponent> = {
   styles?: Styles<C>;
 } & IsEmpty<StateOf<C>, { state?: StateOf<C> }, { state: StateOf<C> }>;
 
-export type PropsOf<C> = C extends AyceComponent<State, infer P> ? P : never;
-export type StateOf<C> = C extends AyceComponent<infer S, Props> ? S : never;
-
 export type SubstituteArgs<C extends AyceComponent> = {
   state: StateOf<C>;
   props: PropsOf<C>;
   self: C;
 };
+
 export type TemplateFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | HtmlProcessor<C>;
 export type StylesFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | CssProcessor<C>;
+
 export type Template<C extends AyceComponent> = string | HtmlProcessor<C> | TemplateFunction<C>;
 export type Styles<C extends AyceComponent> = string | CssProcessor<C> | StylesFunction<C>;
 
