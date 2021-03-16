@@ -6,12 +6,15 @@ declare class HtmlProcessor<C extends AyceComponent> extends Processor<C> {
     private substitutes;
     constructor(strings: string[], substitutes: TemplateSubstitute<C>[]);
     process(args: SubstituteArgs<C>): string;
+    private processSubstitute;
+    private ensureArray;
 }
 declare class CssProcessor<C extends AyceComponent> extends Processor<C> {
     private strings;
     private substitutes;
     constructor(strings: string[], substitutes: StylesSubstitute<C>[]);
     process(args: SubstituteArgs<C>): string;
+    private processSubstitute;
 }
 
 declare type IsEmpty<T, Y = true, N = false> = T extends {
@@ -39,7 +42,9 @@ declare type StylesFunction<C extends AyceComponent> = (args: SubstituteArgs<C>)
 declare type Template<C extends AyceComponent> = string | HtmlProcessor<C> | TemplateFunction<C>;
 declare type Styles<C extends AyceComponent> = string | CssProcessor<C> | StylesFunction<C>;
 declare type Substitute = string | number | boolean;
-declare type TemplateSubstitute<C extends AyceComponent> = Substitute | Substitute[] | AyceComponent<any, any> | AyceComponent<any, any>[] | ((args: SubstituteArgs<C>) => AyceComponent<any, any> | Substitute);
+declare type TemplateSubstituteValue<C extends AyceComponent> = Substitute | AyceComponent<any, any> | HtmlProcessor<C>;
+declare type TemplateSubstituteFunction<C extends AyceComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
+declare type TemplateSubstitute<C extends AyceComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
 declare type StylesSubstitute<C extends AyceComponent> = Substitute | C | ((args: SubstituteArgs<C>) => C | Substitute);
 interface AlpineComponent<E extends HTMLElement, C extends AyceComponent> {
     $data: C;
@@ -54,7 +59,7 @@ interface AlpineComponent<E extends HTMLElement, C extends AyceComponent> {
     updateElement(el: HTMLElement, extraVars?: () => any): void;
     updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
 }
-interface AlpineElement<E extends HTMLElement, C extends AyceComponent> {
+interface AlpineElement<E extends HTMLElement, C extends AyceComponent> extends HTMLElement {
     __x: AlpineComponent<E, C>;
     __x_original_classes?: string[];
     __x_is_shown?: boolean;
@@ -81,7 +86,7 @@ interface AyceComponent<S extends State, P extends Props> {
     state: S;
     props: P;
     parent?: AyceComponent<any, any>;
-    readonly $el: AlpineElement<HTMLElement, this>;
+    readonly $el?: AlpineElement<HTMLElement, this>;
     readonly $nextTick: (callback: () => void) => void;
     readonly $refs: Record<string, HTMLElement>;
     readonly $watch: (property: string, callback: (value: unknown) => void) => void;
@@ -101,4 +106,4 @@ declare const css: <C extends AyceComponent<{}, {}>>(strings: TemplateStringsArr
 declare const getComponent: (name: string) => AyceComponent<any, any> | null;
 declare const createApp: <C extends AyceComponent<{}, {}>>(component: C, root: HTMLElement) => void;
 
-export { Alpine, AlpineComponent, AlpineElement, AyceComponent, Component, ComponentDef, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, createApp, css, getComponent, html };
+export { Alpine, AlpineComponent, AlpineElement, AyceComponent, Component, ComponentDef, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, TemplateSubstituteFunction, TemplateSubstituteValue, createApp, css, getComponent, html };

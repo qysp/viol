@@ -1,17 +1,10 @@
 import { AyceComponent } from './Component';
-import { StylesSubstitute, Substitute, SubstituteArgs, TemplateSubstitute } from './types';
+import { StylesSubstitute, SubstituteArgs, TemplateSubstitute } from './types';
 import { templateSymbol } from './constants';
 
 export abstract class Processor<C extends AyceComponent> {
   abstract process(args: SubstituteArgs<C>): string;
 }
-
-const ensureArray = (
-  substitute: Substitute | Substitute[] | AyceComponent<any, any> | AyceComponent<any, any>[],
-): [(Substitute | AyceComponent<any, any>)] | AyceComponent<any, any>[] | Substitute[] => {
-  return Array.isArray(substitute) ? substitute : [substitute];
-}
-
 
 export class HtmlProcessor<C extends AyceComponent> extends Processor<C> {
   constructor(
@@ -21,22 +14,39 @@ export class HtmlProcessor<C extends AyceComponent> extends Processor<C> {
     super();
   }
 
-  process(args: SubstituteArgs<C>) {
+  process(args: SubstituteArgs<C>): string {
     return this.strings.reduce((html, string, index) => {
-      let substitute = this.substitutes[index] ?? '';
-      if (typeof substitute === 'function') {
-        substitute = substitute(args);
-      }
-      for (const item of ensureArray(substitute)) {
-        if (item instanceof AyceComponent) {
-          item.parent = args.self;
-          string += item[templateSymbol]()
-        } else {
-          string += String(item);
+      const sub = this.processSubstitute(this.substitutes[index - 1], args);
+      return html + sub + string;
+    });
+  }
+
+  private processSubstitute(substitute: TemplateSubstitute<C>, args: SubstituteArgs<C>): string {
+    if (typeof substitute === 'function') {
+      substitute = substitute(args);
+    }
+    return this.ensureArray(substitute).reduce((template: string, item) => {
+      if (item instanceof AyceComponent) {
+        if (item === args.self) {
+          throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
         }
+        item.parent = args.self;
+        template += item[templateSymbol]();
+      } else if (item instanceof Processor) {
+        template += item.process(args);
+      } else if (typeof item === 'function') {
+        template += this.processSubstitute(item, args);
+      } else {
+        template += String(item);
       }
-      return html + string;
+      return template;
     }, '');
+  }
+
+  private ensureArray(
+    substitute: TemplateSubstitute<C>,
+  ): TemplateSubstitute<C>[] {
+    return Array.isArray(substitute) ? substitute : [substitute];
   }
 }
 
@@ -50,14 +60,17 @@ export class CssProcessor<C extends AyceComponent> extends Processor<C> {
 
   process(args: SubstituteArgs<C>): string {
     return this.strings.reduce((css, string, index) => {
-      let substitute = this.substitutes[index] ?? '';
-      if (typeof substitute === 'function') {
-        substitute = substitute(args);
-      }
-      string += substitute instanceof AyceComponent
-        ? substitute.selector
-        : String(substitute)
-      return css + string;
-    }, '');
+      const sub = this.processSubstitute(this.substitutes[index - 1], args);
+      return css + sub + string;
+    });
+  }
+
+  private processSubstitute(substitute: StylesSubstitute<C>, args: SubstituteArgs<C>) {
+    if (typeof substitute === 'function') {
+      substitute = substitute(args);
+    }
+    return substitute instanceof AyceComponent
+      ? substitute.selector
+      : String(substitute)
   }
 }

@@ -85,9 +85,6 @@ class AyceComponent {
 
 class Processor {
 }
-const ensureArray = (substitute) => {
-    return Array.isArray(substitute) ? substitute : [substitute];
-};
 class HtmlProcessor extends Processor {
     constructor(strings, substitutes) {
         super();
@@ -96,22 +93,36 @@ class HtmlProcessor extends Processor {
     }
     process(args) {
         return this.strings.reduce((html, string, index) => {
-            var _a;
-            let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
-            if (typeof substitute === 'function') {
-                substitute = substitute(args);
-            }
-            for (const item of ensureArray(substitute)) {
-                if (item instanceof AyceComponent) {
-                    item.parent = args.self;
-                    string += item[templateSymbol]();
+            const sub = this.processSubstitute(this.substitutes[index - 1], args);
+            return html + sub + string;
+        });
+    }
+    processSubstitute(substitute, args) {
+        if (typeof substitute === 'function') {
+            substitute = substitute(args);
+        }
+        return this.ensureArray(substitute).reduce((template, item) => {
+            if (item instanceof AyceComponent) {
+                if (item === args.self) {
+                    throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
                 }
-                else {
-                    string += String(item);
-                }
+                item.parent = args.self;
+                template += item[templateSymbol]();
             }
-            return html + string;
+            else if (item instanceof Processor) {
+                template += item.process(args);
+            }
+            else if (typeof item === 'function') {
+                template += this.processSubstitute(item, args);
+            }
+            else {
+                template += String(item);
+            }
+            return template;
         }, '');
+    }
+    ensureArray(substitute) {
+        return Array.isArray(substitute) ? substitute : [substitute];
     }
 }
 class CssProcessor extends Processor {
@@ -122,16 +133,17 @@ class CssProcessor extends Processor {
     }
     process(args) {
         return this.strings.reduce((css, string, index) => {
-            var _a;
-            let substitute = (_a = this.substitutes[index]) !== null && _a !== void 0 ? _a : '';
-            if (typeof substitute === 'function') {
-                substitute = substitute(args);
-            }
-            string += substitute instanceof AyceComponent
-                ? substitute.selector
-                : String(substitute);
-            return css + string;
-        }, '');
+            const sub = this.processSubstitute(this.substitutes[index - 1], args);
+            return css + sub + string;
+        });
+    }
+    processSubstitute(substitute, args) {
+        if (typeof substitute === 'function') {
+            substitute = substitute(args);
+        }
+        return substitute instanceof AyceComponent
+            ? substitute.selector
+            : String(substitute);
     }
 }
 

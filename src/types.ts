@@ -31,12 +31,12 @@ export type Substitute =
   | number
   | boolean;
 
-export type TemplateSubstitute<C extends AyceComponent> =
+export type TemplateSubstituteValue<C extends AyceComponent> =
   | Substitute
-  | Substitute[]
   | AyceComponent<any, any>
-  | AyceComponent<any, any>[]
-  | ((args: SubstituteArgs<C>) => AyceComponent<any, any> | Substitute);
+  | HtmlProcessor<C>
+export type TemplateSubstituteFunction<C extends AyceComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
+export type TemplateSubstitute<C extends AyceComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
 
 export type StylesSubstitute<C extends AyceComponent> =
   | Substitute
@@ -57,7 +57,7 @@ export interface AlpineComponent<E extends HTMLElement, C extends AyceComponent>
   updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
 }
 
-export interface AlpineElement<E extends HTMLElement, C extends AyceComponent> {
+export interface AlpineElement<E extends HTMLElement, C extends AyceComponent> extends HTMLElement {
   __x: AlpineComponent<E, C>;
   __x_original_classes?: string[];
   __x_is_shown?: boolean;

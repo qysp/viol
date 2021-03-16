@@ -73,7 +73,7 @@ export interface AyceComponent<S extends State, P extends Props> {
 
   parent?: AyceComponent<any, any>;
 
-  readonly $el: AlpineElement<HTMLElement, this>;
+  readonly $el?: AlpineElement<HTMLElement, this>;
   readonly $nextTick: (callback: () => void) => void;
   readonly $refs: Record<string, HTMLElement>;
   readonly $watch: (property: string, callback: (value: unknown) => void) => void;
