@@ -2,30 +2,23 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-const templateSymbol = Symbol('Ayce::Template');
-
 const UidGenerator = (function* (id = 0) {
     while (++id)
         yield (id + Math.random()).toString(36);
 })();
 const uid = () => UidGenerator.next().value;
+const createElement = (tagName, innerHTML) => {
+    const element = document.createElement(tagName);
+    element.innerHTML = innerHTML;
+    return element;
+};
 const createFragment = (html) => {
-    const template = document.createElement('template');
-    template.innerHTML = html;
+    const template = createElement('template', html);
     return template.content;
 };
 
 const generateName = (component) => {
     return `${component.constructor.name}_${uid()}`;
-};
-const process = (subject, args) => {
-    if (typeof subject === 'function') {
-        subject = subject(args);
-    }
-    if (typeof subject === 'string') {
-        return subject;
-    }
-    return subject.process(args);
 };
 const defineAyceComponent = (name, component) => {
     if (window.AyceComponents.has(name)) {
@@ -59,73 +52,12 @@ class AyceComponent {
         this.props = props !== null && props !== void 0 ? props : {};
         this.state = createReactivity(this, Object.assign({}, this.state));
     }
-    [templateSymbol]() {
-        const substituteArgs = {
-            props: this.props,
-            state: this.state,
-            self: this,
-        };
-        const html = process(this.template, substituteArgs);
-        const fragment = createFragment(html);
-        const root = fragment.firstElementChild;
-        if (root !== null) {
-            root.setAttribute('x-name', this.name);
-            root.setAttribute('x-data', `AyceComponents.get('${this.name}')`);
-        }
-        if (this.styles !== undefined) {
-            const styleElement = document.createElement('style');
-            styleElement.innerHTML = process(this.styles, substituteArgs);
-            document.head.appendChild(styleElement);
-        }
-        return Array.from(fragment.children).reduce((markup, child) => {
-            return markup + child.outerHTML;
-        }, '');
-    }
 }
 
 class Processor {
 }
-class HtmlProcessor extends Processor {
-    constructor(strings, substitutes) {
-        super();
-        this.strings = strings;
-        this.substitutes = substitutes;
-    }
-    process(args) {
-        return this.strings.reduce((html, string, index) => {
-            const sub = this.processSubstitute(this.substitutes[index - 1], args);
-            return html + sub + string;
-        });
-    }
-    processSubstitute(substitute, args) {
-        if (typeof substitute === 'function') {
-            substitute = substitute(args);
-        }
-        return this.ensureArray(substitute).reduce((template, item) => {
-            if (item instanceof AyceComponent) {
-                if (item === args.self) {
-                    throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
-                }
-                item.parent = args.self;
-                template += item[templateSymbol]();
-            }
-            else if (item instanceof Processor) {
-                template += item.process(args);
-            }
-            else if (typeof item === 'function') {
-                template += this.processSubstitute(item, args);
-            }
-            else {
-                template += String(item);
-            }
-            return template;
-        }, '');
-    }
-    ensureArray(substitute) {
-        return Array.isArray(substitute) ? substitute : [substitute];
-    }
-}
-class CssProcessor extends Processor {
+
+class CSSProcessor extends Processor {
     constructor(strings, substitutes) {
         super();
         this.strings = strings;
@@ -147,6 +79,86 @@ class CssProcessor extends Processor {
     }
 }
 
+const process = (subject, args) => {
+    if (typeof subject === 'function') {
+        subject = subject(args);
+    }
+    if (typeof subject === 'string') {
+        return subject;
+    }
+    return subject.process(args);
+};
+const processTemplate = (template, args) => {
+    const html = process(template, args);
+    const fragment = createFragment(html);
+    const root = fragment.firstElementChild;
+    if (root !== null) {
+        root.setAttribute('x-name', args.self.name);
+        root.setAttribute('x-data', `AyceComponents.get('${args.self.name}')`);
+    }
+    return Array.from(fragment.children).reduce((markup, child) => {
+        return markup + child.outerHTML;
+    }, '');
+};
+const processStyles = (styles, args) => {
+    if (styles === undefined) {
+        return '';
+    }
+    return process(styles, args);
+};
+const processComponent = (component) => {
+    const args = {
+        props: component.props,
+        state: component.state,
+        self: component,
+    };
+    const html = processTemplate(component.template, args);
+    const css = processStyles(component.styles, args);
+    window.AyceStyles.push(css);
+    return html;
+};
+
+class HTMLProcessor extends Processor {
+    constructor(strings, substitutes) {
+        super();
+        this.strings = strings;
+        this.substitutes = substitutes;
+    }
+    process(args) {
+        return this.strings.reduce((html, string, index) => {
+            const sub = this.processSubstitute(this.substitutes[index - 1], args);
+            return html + sub + string;
+        });
+    }
+    processSubstitute(substitute, args) {
+        if (typeof substitute === 'function') {
+            substitute = substitute(args);
+        }
+        return this.ensureArray(substitute).reduce((template, item) => {
+            if (item instanceof AyceComponent) {
+                if (item === args.self) {
+                    throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
+                }
+                item.parent = args.self;
+                template += processComponent(item);
+            }
+            else if (item instanceof Processor) {
+                template += item.process(args);
+            }
+            else if (typeof item === 'function') {
+                template += this.processSubstitute(item, args);
+            }
+            else {
+                template += String(item);
+            }
+            return template;
+        }, '');
+    }
+    ensureArray(substitute) {
+        return Array.isArray(substitute) ? substitute : [substitute];
+    }
+}
+
 function Component(def) {
     return (target) => {
         var _a;
@@ -161,10 +173,10 @@ function Component(def) {
     };
 }
 const html = (strings, ...substitutes) => {
-    return new HtmlProcessor([...strings], substitutes);
+    return new HTMLProcessor([...strings], substitutes);
 };
 const css = (strings, ...substitutes) => {
-    return new CssProcessor([...strings], substitutes);
+    return new CSSProcessor([...strings], substitutes);
 };
 const getComponent = (name) => {
     var _a;
@@ -175,7 +187,9 @@ const createApp = (component, root) => {
     const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
     window.deferLoadingAlpine = (callback) => {
         alpine(callback);
-        root.innerHTML = component[templateSymbol]();
+        root.innerHTML = processComponent(component);
+        const styleSheet = createElement('style', window.AyceStyles.join(''));
+        document.head.appendChild(styleSheet);
         window.Alpine.onBeforeComponentInitialized((component) => {
             if (typeof component.$data.onInit === 'function') {
                 component.$data.onInit();
@@ -191,6 +205,9 @@ const createApp = (component, root) => {
 
 if (!('AyceComponents' in window)) {
     window.AyceComponents = new Map();
+}
+if (!('AyceStyles' in window)) {
+    window.AyceStyles = [];
 }
 
 exports.AyceComponent = AyceComponent;

@@ -18,6 +18,9 @@ Using the `css` tag you can use the component's selector and therefore make the 
 
   <summary>A simple example:</summary>
 
+  Using `${self}` here is just syntactic sugar for `${self.selector}`.
+  The selector is just a simple property that holds the selector string.
+
   ```ts
   @Component<ColorExample>({
     template: `
@@ -81,16 +84,17 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
     intervalId: null | number;
     time: number;
   }> {
-    onClick() {
+    onClick(): void {
       if (this.state.intervalId !== null) {
         this.stop();
+        return;
       } else if (this.state.time === 0) {
-        this.state.time = 20;
+        this.reset();
       }
       this.start();
     }
 
-    start() {
+    start(): void {
       --this.state.time;
       this.state.intervalId = setInterval(() => {
         --this.state.time;
@@ -100,15 +104,14 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
       }, 1000);
     }
 
-    stop() {
+    stop(): void {
       if (this.state.intervalId !== null) {
         clearInterval(this.state.intervalId);
         this.state.intervalId = null;
       }
     }
 
-    reset() {
-      this.stop();
+    reset(): void {
       this.state.time = 20;
     }
   }
@@ -121,9 +124,3 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
 ## Examples
 
 Checkout [Ayce Examples](https://github.com/qysp/ayce-examples) for a demo.
-
-## TODO
-
-- [ ] Merge all component styles into one `style` element
-- [ ] Remove the custom state management system
-- [ ] Enhance typing for the `Component` decorator (no more `@Component<MyComponent>()`)
