@@ -1,11 +1,11 @@
-if (!('AyceComponents' in window)) {
-  window.AyceComponents = new Map();
+if (!('ViolComponents' in window)) {
+  window.ViolComponents = new Map();
 }
 
-if (!('AyceStyles' in window)) {
-  window.AyceStyles = [];
+if (!('ViolStyles' in window)) {
+  window.ViolStyles = [];
 }
 
-export * from './Ayce';
+export * from './Viol';
 export * from './Component';
 export * from './types';

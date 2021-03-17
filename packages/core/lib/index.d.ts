@@ -1,8 +1,8 @@
-declare abstract class Processor<C extends AyceComponent> {
+declare abstract class Processor<C extends ViolComponent> {
     abstract process(args: SubstituteArgs<C>): string;
 }
 
-declare class CSSProcessor<C extends AyceComponent> extends Processor<C> {
+declare class CSSProcessor<C extends ViolComponent> extends Processor<C> {
     private strings;
     private substitutes;
     constructor(strings: string[], substitutes: StylesSubstitute<C>[]);
@@ -10,7 +10,7 @@ declare class CSSProcessor<C extends AyceComponent> extends Processor<C> {
     private processSubstitute;
 }
 
-declare class HTMLProcessor<C extends AyceComponent> extends Processor<C> {
+declare class HTMLProcessor<C extends ViolComponent> extends Processor<C> {
     private strings;
     private substitutes;
     constructor(strings: string[], substitutes: TemplateSubstitute<C>[]);
@@ -22,19 +22,19 @@ declare class HTMLProcessor<C extends AyceComponent> extends Processor<C> {
 declare global {
     interface Window {
         Alpine: Alpine;
-        AyceComponents: Map<string, AyceComponent>;
-        AyceStyles: string[];
+        ViolComponents: Map<string, ViolComponent>;
+        ViolStyles: string[];
         deferLoadingAlpine?: (callback: Function) => any;
     }
 }
 declare type IsEmpty<T, Y = true, N = false> = T extends {
     [key: string]: never;
 } ? Y : N;
-declare type PropsOf<C> = C extends AyceComponent<State, infer P> ? P : never;
-declare type StateOf<C> = C extends AyceComponent<infer S, Props> ? S : never;
+declare type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
+declare type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
 declare type State = Record<string, any>;
 declare type Props = Record<string, any>;
-declare type ComponentDef<C extends AyceComponent> = {
+declare type ComponentDef<C extends ViolComponent> = {
     template: Template<C>;
     styles?: Styles<C>;
 } & IsEmpty<StateOf<C>, {
@@ -42,21 +42,21 @@ declare type ComponentDef<C extends AyceComponent> = {
 }, {
     state: StateOf<C>;
 }>;
-declare type SubstituteArgs<C extends AyceComponent> = {
+declare type SubstituteArgs<C extends ViolComponent> = {
     state: StateOf<C>;
     props: PropsOf<C>;
     self: C;
 };
-declare type TemplateFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | HTMLProcessor<C>;
-declare type StylesFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | CSSProcessor<C>;
-declare type Template<C extends AyceComponent> = string | HTMLProcessor<C> | TemplateFunction<C>;
-declare type Styles<C extends AyceComponent> = string | CSSProcessor<C> | StylesFunction<C>;
+declare type TemplateFunction<C extends ViolComponent> = (args: SubstituteArgs<C>) => string | HTMLProcessor<C>;
+declare type StylesFunction<C extends ViolComponent> = (args: SubstituteArgs<C>) => string | CSSProcessor<C>;
+declare type Template<C extends ViolComponent> = string | HTMLProcessor<C> | TemplateFunction<C>;
+declare type Styles<C extends ViolComponent> = string | CSSProcessor<C> | StylesFunction<C>;
 declare type Substitute = string | number | boolean;
-declare type TemplateSubstituteValue<C extends AyceComponent> = Substitute | AyceComponent | HTMLProcessor<C>;
-declare type TemplateSubstituteFunction<C extends AyceComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
-declare type TemplateSubstitute<C extends AyceComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
-declare type StylesSubstitute<C extends AyceComponent> = Substitute | C | ((args: SubstituteArgs<C>) => C | Substitute);
-interface AlpineComponent<E extends HTMLElement, C extends AyceComponent> {
+declare type TemplateSubstituteValue<C extends ViolComponent> = Substitute | ViolComponent | HTMLProcessor<C>;
+declare type TemplateSubstituteFunction<C extends ViolComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
+declare type TemplateSubstitute<C extends ViolComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
+declare type StylesSubstitute<C extends ViolComponent> = Substitute | C | ((args: SubstituteArgs<C>) => C | Substitute);
+interface AlpineComponent<E extends HTMLElement, C extends ViolComponent> {
     $data: C;
     $el: AlpineElement<E, C>;
     membrane: object;
@@ -69,7 +69,7 @@ interface AlpineComponent<E extends HTMLElement, C extends AyceComponent> {
     updateElement(el: HTMLElement, extraVars?: () => any): void;
     updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
 }
-interface AlpineElement<E extends HTMLElement, C extends AyceComponent> extends HTMLElement {
+interface AlpineElement<E extends HTMLElement, C extends ViolComponent> extends HTMLElement {
     __x: AlpineComponent<E, C>;
     __x_original_classes?: string[];
     __x_is_shown?: boolean;
@@ -81,12 +81,12 @@ interface Alpine {
     onComponentInitialized: (callback: (component: AlpineComponent<any, any>) => void) => void;
 }
 
-interface AyceComponent<S extends State, P extends Props> {
-    template: Template<AyceComponent>;
-    styles?: Styles<AyceComponent>;
+interface ViolComponent<S extends State, P extends Props> {
+    template: Template<ViolComponent>;
+    styles?: Styles<ViolComponent>;
     state: S;
     props: P;
-    parent?: AyceComponent;
+    parent?: ViolComponent;
     readonly $el?: AlpineElement<HTMLElement, this>;
     readonly $nextTick: (callback: () => void) => void;
     readonly $refs: Record<string, HTMLElement>;
@@ -94,16 +94,16 @@ interface AyceComponent<S extends State, P extends Props> {
     onInit?(): void;
     onAfterInit?(): void;
 }
-declare class AyceComponent<S extends State = any, P extends Props = any> {
+declare class ViolComponent<S extends State = any, P extends Props = any> {
     readonly name: string;
     readonly selector: string;
     constructor(props?: P, name?: string);
 }
 
-declare function Component<C extends AyceComponent>(def: ComponentDef<C>): ClassDecorator;
-declare const html: <C extends AyceComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: TemplateSubstitute<C>[]) => HTMLProcessor<C>;
-declare const css: <C extends AyceComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: StylesSubstitute<C>[]) => CSSProcessor<C>;
-declare const getComponent: <C extends AyceComponent<any, any> = AyceComponent<any, any>>(name: string) => C | null;
-declare const createApp: <C extends AyceComponent<any, any>>(component: C, root: HTMLElement) => void;
+declare function Component<C extends ViolComponent>(def: ComponentDef<C>): ClassDecorator;
+declare const html: <C extends ViolComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: TemplateSubstitute<C>[]) => HTMLProcessor<C>;
+declare const css: <C extends ViolComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: StylesSubstitute<C>[]) => CSSProcessor<C>;
+declare const getComponent: <C extends ViolComponent<any, any> = ViolComponent<any, any>>(name: string) => C | null;
+declare const createApp: <C extends ViolComponent<any, any>>(component: C, root: HTMLElement) => void;
 
-export { Alpine, AlpineComponent, AlpineElement, AyceComponent, Component, ComponentDef, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, TemplateSubstituteFunction, TemplateSubstituteValue, createApp, css, getComponent, html };
+export { Alpine, AlpineComponent, AlpineElement, Component, ComponentDef, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, TemplateSubstituteFunction, TemplateSubstituteValue, ViolComponent, createApp, css, getComponent, html };

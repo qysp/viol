@@ -7,18 +7,18 @@ import {
 } from './types';
 import { uid } from './internal/util';
 
-const generateName = <C extends AyceComponent>(component: C): string => {
+const generateName = <C extends ViolComponent>(component: C): string => {
   return `${component.constructor.name}_${uid()}`;
 }
 
-const defineAyceComponent = <C extends AyceComponent>(name: string, component: C): void => {
-  if (window.AyceComponents.has(name)) {
-    throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
+const defineViolComponent = <C extends ViolComponent>(name: string, component: C): void => {
+  if (window.ViolComponents.has(name)) {
+    throw new Error(`[Viol] Error: component with name '${name}' already exists!`);
   }
-  window.AyceComponents.set(name, component);
+  window.ViolComponents.set(name, component);
 };
 
-const createReactivity = <S extends State>(component: AyceComponent, state: S): S => {
+const createReactivity = <S extends State>(component: ViolComponent, state: S): S => {
   return new Proxy(state, {
     get: (target, prop, receiver) => {
       // console.debug(`[${component.name}] Get state:`, target, prop);
@@ -41,13 +41,13 @@ const createReactivity = <S extends State>(component: AyceComponent, state: S): 
   });
 }
 
-export interface AyceComponent<S extends State, P extends Props> {
-  template: Template<AyceComponent>;
-  styles?: Styles<AyceComponent>;
+export interface ViolComponent<S extends State, P extends Props> {
+  template: Template<ViolComponent>;
+  styles?: Styles<ViolComponent>;
   state: S;
   props: P;
 
-  parent?: AyceComponent;
+  parent?: ViolComponent;
 
   readonly $el?: AlpineElement<HTMLElement, this>;
   readonly $nextTick: (callback: () => void) => void;
@@ -58,14 +58,14 @@ export interface AyceComponent<S extends State, P extends Props> {
   onAfterInit?(): void;
 }
 
-export class AyceComponent<S extends State = any, P extends Props = any> {
+export class ViolComponent<S extends State = any, P extends Props = any> {
   readonly name: string;
   readonly selector: string;
 
   constructor(props?: P, name?: string) {
     this.name = name ?? generateName(this);
     this.selector = `[x-name="${this.name}"]`;
-    defineAyceComponent(this.name, this);
+    defineViolComponent(this.name, this);
     this.props = props ?? {} as P;
     this.state = createReactivity(this, { ...this.state });
   }

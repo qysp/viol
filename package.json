@@ -1,5 +1,5 @@
 {
-  "name": "ayce",
+  "name": "viol",
   "version": "1.0.0",
   "private": true,
   "description": "A lightweight framework for Alpine.js",
@@ -7,9 +7,9 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/qysp/ayce.git"
+    "url": "https://github.com/qysp/viol.git"
   },
-  "bugs": "https://github.com/qysp/ayce/issues",
+  "bugs": "https://github.com/qysp/viol/issues",
   "keywords": [
     "alpine",
     "alpine.js",

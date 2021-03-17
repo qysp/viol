@@ -1,8 +1,8 @@
-import { AyceComponent } from '../../Component';
+import { ViolComponent } from '../../Component';
 import { StylesSubstitute, SubstituteArgs } from '../../types';
 import { Processor } from './Processor';
 
-export class CSSProcessor<C extends AyceComponent> extends Processor<C> {
+export class CSSProcessor<C extends ViolComponent> extends Processor<C> {
   constructor(
     private strings: string[],
     private substitutes: StylesSubstitute<C>[],
@@ -21,7 +21,7 @@ export class CSSProcessor<C extends AyceComponent> extends Processor<C> {
     if (typeof substitute === 'function') {
       substitute = substitute(args);
     }
-    return substitute instanceof AyceComponent
+    return substitute instanceof ViolComponent
       ? substitute.selector
       : String(substitute)
   }

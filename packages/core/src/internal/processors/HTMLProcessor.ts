@@ -1,9 +1,9 @@
-import { AyceComponent } from '../../Component';
+import { ViolComponent } from '../../Component';
 import { SubstituteArgs, TemplateSubstitute } from '../../types';
 import { processComponent } from '../components';
 import { Processor } from './Processor';
 
-export class HTMLProcessor<C extends AyceComponent> extends Processor<C> {
+export class HTMLProcessor<C extends ViolComponent> extends Processor<C> {
   constructor(
     private strings: string[],
     private substitutes: TemplateSubstitute<C>[],
@@ -23,9 +23,9 @@ export class HTMLProcessor<C extends AyceComponent> extends Processor<C> {
       substitute = substitute(args);
     }
     return this.ensureArray(substitute).reduce((template: string, item) => {
-      if (item instanceof AyceComponent) {
+      if (item instanceof ViolComponent) {
         if (item === args.self) {
-          throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
+          throw new Error('[Viol] Error: components cannot be used in their own templates (infinite recursion)');
         }
         item.parent = args.self;
         template += processComponent(item);

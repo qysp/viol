@@ -1,6 +1,6 @@
-# @ayce/core
+# @viol/core
 
-The core library of Ayce.
+The core library of Viol.
 
 ## TODO
 

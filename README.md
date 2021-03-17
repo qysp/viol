@@ -1,6 +1,6 @@
-# Ayce
+# Viol
 
-Ayce is a lightweight framework for [Alpine.js](https://github.com/alpinejs/alpine).
+Viol is a lightweight framework for [Alpine.js](https://github.com/alpinejs/alpine).
 
 > Take everything with a grain of salt, this is just a fun project and not meant to be used in production (yet?).
 
@@ -32,7 +32,7 @@ Using the `css` tag you can use the component's selector and therefore make the 
       }
     `,
   })
-  class ColorExample extends AyceComponent<{}, { color: string }> { }
+  class ColorExample extends ViolComponent<{}, { color: string }> { }
 
   @Component({
     template: html`
@@ -40,7 +40,7 @@ Using the `css` tag you can use the component's selector and therefore make the 
       ${new ColorExample({ color: 'blue' })}
     `,
   })
-  class App extends AyceComponent { }
+  class App extends ViolComponent { }
 
   createApp(new App(), document.getElementById('root')!);
   ```
@@ -62,7 +62,7 @@ To make use of it, give the component you wish to access a name in its construct
 
 ### Custom state management system
 
-Ayce comes with an awesome custom management system for your component's state. It allows you to use deeply nested objects and arrays and reliably update the affected components.
+Viol comes with an awesome custom management system for your component's state. It allows you to use deeply nested objects and arrays and reliably update the affected components.
 
 Okay, just kidding. This _feature_ will hopefully be removed in the future.
 
@@ -80,7 +80,7 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
       time: 20,
     },
   })
-  export class Counter extends AyceComponent<{
+  export class Counter extends ViolComponent<{
     intervalId: null | number;
     time: number;
   }> {
@@ -123,4 +123,4 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
 
 ## Examples
 
-Checkout [Ayce Examples](https://github.com/qysp/ayce-examples) for a demo.
+Checkout [Viol Examples](https://github.com/qysp/viol-examples) for a demo.

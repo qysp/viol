@@ -20,11 +20,11 @@ const createFragment = (html) => {
 const generateName = (component) => {
     return `${component.constructor.name}_${uid()}`;
 };
-const defineAyceComponent = (name, component) => {
-    if (window.AyceComponents.has(name)) {
-        throw new Error(`[Ayce] Error: component with name '${name}' already exists!`);
+const defineViolComponent = (name, component) => {
+    if (window.ViolComponents.has(name)) {
+        throw new Error(`[Viol] Error: component with name '${name}' already exists!`);
     }
-    window.AyceComponents.set(name, component);
+    window.ViolComponents.set(name, component);
 };
 const createReactivity = (component, state) => {
     return new Proxy(state, {
@@ -44,11 +44,11 @@ const createReactivity = (component, state) => {
         },
     });
 };
-class AyceComponent {
+class ViolComponent {
     constructor(props, name) {
         this.name = name !== null && name !== void 0 ? name : generateName(this);
         this.selector = `[x-name="${this.name}"]`;
-        defineAyceComponent(this.name, this);
+        defineViolComponent(this.name, this);
         this.props = props !== null && props !== void 0 ? props : {};
         this.state = createReactivity(this, Object.assign({}, this.state));
     }
@@ -73,7 +73,7 @@ class CSSProcessor extends Processor {
         if (typeof substitute === 'function') {
             substitute = substitute(args);
         }
-        return substitute instanceof AyceComponent
+        return substitute instanceof ViolComponent
             ? substitute.selector
             : String(substitute);
     }
@@ -94,7 +94,7 @@ const processTemplate = (template, args) => {
     const root = fragment.firstElementChild;
     if (root !== null) {
         root.setAttribute('x-name', args.self.name);
-        root.setAttribute('x-data', `AyceComponents.get('${args.self.name}')`);
+        root.setAttribute('x-data', `ViolComponents.get('${args.self.name}')`);
     }
     return Array.from(fragment.children).reduce((markup, child) => {
         return markup + child.outerHTML;
@@ -114,7 +114,7 @@ const processComponent = (component) => {
     };
     const html = processTemplate(component.template, args);
     const css = processStyles(component.styles, args);
-    window.AyceStyles.push(css);
+    window.ViolStyles.push(css);
     return html;
 };
 
@@ -135,9 +135,9 @@ class HTMLProcessor extends Processor {
             substitute = substitute(args);
         }
         return this.ensureArray(substitute).reduce((template, item) => {
-            if (item instanceof AyceComponent) {
+            if (item instanceof ViolComponent) {
                 if (item === args.self) {
-                    throw new Error('[Ayce] Error: components cannot be used in their own templates (infinite recursion)');
+                    throw new Error('[Viol] Error: components cannot be used in their own templates (infinite recursion)');
                 }
                 item.parent = args.self;
                 template += processComponent(item);
@@ -180,7 +180,7 @@ const css = (strings, ...substitutes) => {
 };
 const getComponent = (name) => {
     var _a;
-    return (_a = window.AyceComponents.get(name)) !== null && _a !== void 0 ? _a : null;
+    return (_a = window.ViolComponents.get(name)) !== null && _a !== void 0 ? _a : null;
 };
 const createApp = (component, root) => {
     var _a;
@@ -188,7 +188,7 @@ const createApp = (component, root) => {
     window.deferLoadingAlpine = (callback) => {
         alpine(callback);
         root.innerHTML = processComponent(component);
-        const styleSheet = createElement('style', window.AyceStyles.join(''));
+        const styleSheet = createElement('style', window.ViolStyles.join(''));
         document.head.appendChild(styleSheet);
         window.Alpine.onBeforeComponentInitialized((component) => {
             if (typeof component.$data.onInit === 'function') {
@@ -203,15 +203,15 @@ const createApp = (component, root) => {
     };
 };
 
-if (!('AyceComponents' in window)) {
-    window.AyceComponents = new Map();
+if (!('ViolComponents' in window)) {
+    window.ViolComponents = new Map();
 }
-if (!('AyceStyles' in window)) {
-    window.AyceStyles = [];
+if (!('ViolStyles' in window)) {
+    window.ViolStyles = [];
 }
 
-exports.AyceComponent = AyceComponent;
 exports.Component = Component;
+exports.ViolComponent = ViolComponent;
 exports.createApp = createApp;
 exports.css = css;
 exports.getComponent = getComponent;

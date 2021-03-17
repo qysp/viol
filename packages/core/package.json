@@ -1,18 +1,21 @@
 {
-  "name": "@ayce/core",
+  "name": "@viol/core",
   "version": "0.0.1",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "description": "Ayce - the core library",
+  "description": "Viol - the core library",
   "repository": {
     "type": "git",
-    "url": "https://github.com/qysp/ayce.git",
+    "url": "https://github.com/qysp/viol.git",
     "directory": "packages/core"
   },
   "author": "qysp",
   "license": "MIT",
-  "bugs": "https://github.com/qysp/ayce/issues",
+  "bugs": "https://github.com/qysp/viol/issues",
   "scripts": {
     "bundle": "rollup -c"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

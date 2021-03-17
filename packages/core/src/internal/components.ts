@@ -1,8 +1,8 @@
-import { AyceComponent } from '../Component';
+import { ViolComponent } from '../Component';
 import { Styles, SubstituteArgs, Template } from '../types';
 import { createFragment } from './util';
 
-const process = <C extends AyceComponent>(
+const process = <C extends ViolComponent>(
   subject: Styles<C> | Template<C>,
   args: SubstituteArgs<C>,
 ): string => {
@@ -15,7 +15,7 @@ const process = <C extends AyceComponent>(
   return subject.process(args)
 }
 
-export const processTemplate = <C extends AyceComponent>(
+export const processTemplate = <C extends ViolComponent>(
   template: Template<C>,
   args: SubstituteArgs<C>,
 ): string => {
@@ -26,14 +26,14 @@ export const processTemplate = <C extends AyceComponent>(
     // Make this component queryable for CSS selectors.
     root.setAttribute('x-name', args.self.name);
     // Register component for Alpine.
-    root.setAttribute('x-data', `AyceComponents.get('${args.self.name}')`);
+    root.setAttribute('x-data', `ViolComponents.get('${args.self.name}')`);
   }
   return Array.from(fragment.children).reduce((markup, child) => {
     return markup + child.outerHTML;
   }, '');
 }
 
-export const processStyles = <C extends AyceComponent>(
+export const processStyles = <C extends ViolComponent>(
   styles: Styles<C> | undefined,
   args: SubstituteArgs<C>,
 ): string => {
@@ -43,7 +43,7 @@ export const processStyles = <C extends AyceComponent>(
   return process(styles, args);
 }
 
-export const processComponent = <C extends AyceComponent>(component: C): string => {
+export const processComponent = <C extends ViolComponent>(component: C): string => {
   const args: SubstituteArgs<C> = {
     props: component.props,
     state: component.state,
@@ -51,6 +51,6 @@ export const processComponent = <C extends AyceComponent>(component: C): string 
   };
   const html = processTemplate(component.template, args);
   const css = processStyles(component.styles, args);
-  window.AyceStyles.push(css);
+  window.ViolStyles.push(css);
   return html;
 }

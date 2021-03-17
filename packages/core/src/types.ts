@@ -1,58 +1,58 @@
-import { AyceComponent } from './Component';
+import { ViolComponent } from './Component';
 import { CSSProcessor, HTMLProcessor } from './internal/processors';
 
 declare global {
   interface Window {
     Alpine: Alpine;
-    AyceComponents: Map<string, AyceComponent>;
-    AyceStyles: string[];
+    ViolComponents: Map<string, ViolComponent>;
+    ViolStyles: string[];
     deferLoadingAlpine?: (callback: Function) => any;
   }
 }
 
 type IsEmpty<T, Y = true, N = false> = T extends { [key: string]: never } ? Y : N;
 
-type PropsOf<C> = C extends AyceComponent<State, infer P> ? P : never;
-type StateOf<C> = C extends AyceComponent<infer S, Props> ? S : never;
+type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
+type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
 
 export type State = Record<string, any>;
 export type Props = Record<string, any>;
 
-export type ComponentDef<C extends AyceComponent> = {
+export type ComponentDef<C extends ViolComponent> = {
   template: Template<C>;
   styles?: Styles<C>;
 } & IsEmpty<StateOf<C>, { state?: StateOf<C> }, { state: StateOf<C> }>;
 
-export type SubstituteArgs<C extends AyceComponent> = {
+export type SubstituteArgs<C extends ViolComponent> = {
   state: StateOf<C>;
   props: PropsOf<C>;
   self: C;
 };
 
-export type TemplateFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | HTMLProcessor<C>;
-export type StylesFunction<C extends AyceComponent> = (args: SubstituteArgs<C>) => string | CSSProcessor<C>;
+export type TemplateFunction<C extends ViolComponent> = (args: SubstituteArgs<C>) => string | HTMLProcessor<C>;
+export type StylesFunction<C extends ViolComponent> = (args: SubstituteArgs<C>) => string | CSSProcessor<C>;
 
-export type Template<C extends AyceComponent> = string | HTMLProcessor<C> | TemplateFunction<C>;
-export type Styles<C extends AyceComponent> = string | CSSProcessor<C> | StylesFunction<C>;
+export type Template<C extends ViolComponent> = string | HTMLProcessor<C> | TemplateFunction<C>;
+export type Styles<C extends ViolComponent> = string | CSSProcessor<C> | StylesFunction<C>;
 
 export type Substitute =
   | string
   | number
   | boolean;
 
-export type TemplateSubstituteValue<C extends AyceComponent> =
+export type TemplateSubstituteValue<C extends ViolComponent> =
   | Substitute
-  | AyceComponent
+  | ViolComponent
   | HTMLProcessor<C>
-export type TemplateSubstituteFunction<C extends AyceComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
-export type TemplateSubstitute<C extends AyceComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
+export type TemplateSubstituteFunction<C extends ViolComponent> = ((args: SubstituteArgs<C>) => TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[]);
+export type TemplateSubstitute<C extends ViolComponent> = TemplateSubstituteFunction<C> | TemplateSubstituteValue<C> | TemplateSubstituteValue<C>[];
 
-export type StylesSubstitute<C extends AyceComponent> =
+export type StylesSubstitute<C extends ViolComponent> =
   | Substitute
   | C
   | ((args: SubstituteArgs<C>) => C | Substitute);
 
-export interface AlpineComponent<E extends HTMLElement, C extends AyceComponent> {
+export interface AlpineComponent<E extends HTMLElement, C extends ViolComponent> {
   $data: C;
   $el: AlpineElement<E, C>;
   membrane: object;
@@ -66,7 +66,7 @@ export interface AlpineComponent<E extends HTMLElement, C extends AyceComponent>
   updateElements(rootEl: HTMLElement, extraVars?: () => any): void;
 }
 
-export interface AlpineElement<E extends HTMLElement, C extends AyceComponent> extends HTMLElement {
+export interface AlpineElement<E extends HTMLElement, C extends ViolComponent> extends HTMLElement {
   __x: AlpineComponent<E, C>;
   __x_original_classes?: string[];
   __x_is_shown?: boolean;
