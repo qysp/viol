@@ -16,10 +16,10 @@
     "bundle": "rollup -c"
   },
   "peerDependencies": {
-    "@viol/core": "^0.0.1"
+    "@viol/core": "^0.0.3"
   },
   "devDependencies": {
-    "@viol/core": "^0.0.1"
+    "@viol/core": "^0.0.3"
   },
   "publishConfig": {
     "access": "public"

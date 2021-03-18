@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@viol/core@^0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@viol/core/-/core-0.0.1.tgz#f9982bc5cca56501fc1b38309fd65c9f420bdb69"
-  integrity sha512-aWKtnDEjdYxezYr50O44SWrMdN+lOa6H1cHM8GM9AlSf6rs26Qo6Ld7fWCh8O1Fcm/m2QqR9Y87vuceymwDUaQ==
+"@viol/core@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@viol/core/-/core-0.0.3.tgz#5fbee20d9a747992bf32b0f99dae392182420c08"
+  integrity sha512-JvmG2Q6D3P3QSROMEwQWuMwhmWCBOYm9nRZGDTZc+iy/Mp9x2AkHEAo5/aQeHjot7qJZl06llesE8VBokkoIuQ==
