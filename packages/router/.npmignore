@@ -1,0 +1,10 @@
+/src/
+/build/
+
+tsconfig.json
+*.tsbuildinfo
+
+rollup.config.js
+
+*.lock
+*.log

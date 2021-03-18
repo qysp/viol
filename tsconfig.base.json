@@ -23,6 +23,7 @@
   },
   "include": [],
   "references": [
-    { "path": "./packages/core" }
+    { "path": "./packages/core" },
+    { "path": "./packages/router" }
   ]
 }

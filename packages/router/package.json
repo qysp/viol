@@ -1,0 +1,27 @@
+{
+  "name": "@viol/router",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "description": "Viol - the router library",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/qysp/viol.git",
+    "directory": "packages/router"
+  },
+  "author": "qysp",
+  "license": "MIT",
+  "bugs": "https://github.com/qysp/viol/issues",
+  "scripts": {
+    "bundle": "rollup -c"
+  },
+  "peerDependencies": {
+    "@viol/core": "^0.0.1"
+  },
+  "devDependencies": {
+    "@viol/core": "^0.0.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
