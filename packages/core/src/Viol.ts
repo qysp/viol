@@ -33,7 +33,7 @@ export const css = <C extends ViolComponent>(
 
 export const getComponent = <C extends ViolComponent = ViolComponent>(name: string): C | null => {
   return window.ViolComponents.get(name) as C ?? null;
-}
+};
 
 export const createApp = <C extends ViolComponent>(component: C, root: HTMLElement) => {
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());

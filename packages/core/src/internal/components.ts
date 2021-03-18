@@ -31,7 +31,7 @@ export const processTemplate = <C extends ViolComponent>(
   return Array.from(fragment.children).reduce((markup, child) => {
     return markup + child.outerHTML;
   }, '');
-}
+};
 
 export const processStyles = <C extends ViolComponent>(
   styles: Styles<C> | undefined,
@@ -41,9 +41,11 @@ export const processStyles = <C extends ViolComponent>(
     return '';
   }
   return process(styles, args);
-}
+};
 
-export const processComponent = <C extends ViolComponent>(component: C): string => {
+export const processComponent = <C extends ViolComponent>(
+  component: C,
+): string => {
   const args: SubstituteArgs<C> = {
     props: component.props,
     state: component.state,
@@ -53,4 +55,4 @@ export const processComponent = <C extends ViolComponent>(component: C): string 
   const css = processStyles(component.styles, args);
   window.ViolStyles.push(css);
   return html;
-}
+};

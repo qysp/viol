@@ -9,7 +9,7 @@ import { uid } from './internal/util';
 
 const generateName = <C extends ViolComponent>(component: C): string => {
   return `${component.constructor.name}_${uid()}`;
-}
+};
 
 const defineViolComponent = <C extends ViolComponent>(name: string, component: C): void => {
   if (window.ViolComponents.has(name)) {
@@ -21,25 +21,24 @@ const defineViolComponent = <C extends ViolComponent>(name: string, component: C
 const createReactivity = <S extends State>(component: ViolComponent, state: S): S => {
   return new Proxy(state, {
     get: (target, prop, receiver) => {
-      // console.debug(`[${component.name}] Get state:`, target, prop);
       const value = Reflect.get(target, prop, receiver);
       if (typeof value === 'object' && value !== null) {
-        // console.debug(`[${component.name}] Create reactivity:`, target, prop, value);
         return createReactivity<S[keyof S]>(component, value);
       }
       return value;
     },
     set: (target, prop, value, receiver) => {
-      // console.debug(`[${component.name}] State change:`, target, prop, value);
+      if (Reflect.get(target, prop, receiver) === value) {
+        return true;
+      }
       const success = Reflect.set(target, prop, value, receiver);
       if (success && component.$el instanceof HTMLElement && component.$el.__x !== undefined) {
-        // console.debug(`[${component.name}] Update elements:`, component.$el);
         component.$el.__x.updateElements(component.$el);
       }
       return success;
     },
   });
-}
+};
 
 export interface ViolComponent<S extends State, P extends Props> {
   template: Template<ViolComponent>;

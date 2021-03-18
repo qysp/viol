@@ -36,6 +36,9 @@ const createReactivity = (component, state) => {
             return value;
         },
         set: (target, prop, value, receiver) => {
+            if (Reflect.get(target, prop, receiver) === value) {
+                return true;
+            }
             const success = Reflect.set(target, prop, value, receiver);
             if (success && component.$el instanceof HTMLElement && component.$el.__x !== undefined) {
                 component.$el.__x.updateElements(component.$el);
@@ -137,7 +140,7 @@ class HTMLProcessor extends Processor {
         return this.ensureArray(substitute).reduce((template, item) => {
             if (item instanceof ViolComponent) {
                 if (item === args.self) {
-                    throw new Error('[Viol] Error: components cannot be used in their own templates (infinite recursion)');
+                    throw new Error('[Viol] Error: cannot reference component in its own template');
                 }
                 item.parent = args.self;
                 template += processComponent(item);

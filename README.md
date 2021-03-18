@@ -4,6 +4,10 @@ Viol is a lightweight framework for [Alpine.js](https://github.com/alpinejs/alpi
 
 > Take everything with a grain of salt, this is just a fun project and not meant to be used in production (yet?).
 
+## Install
+
+Run `npm install --save-dev @viol/core` or `yarn add -D @viol/core` depending on your package manager.
+
 ## Features
 
 ### Magic `onInit` and `onAfterInit` methods

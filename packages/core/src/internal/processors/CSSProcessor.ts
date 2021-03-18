@@ -17,7 +17,10 @@ export class CSSProcessor<C extends ViolComponent> extends Processor<C> {
     });
   }
 
-  private processSubstitute(substitute: StylesSubstitute<C>, args: SubstituteArgs<C>) {
+  private processSubstitute(
+    substitute: StylesSubstitute<C>,
+    args: SubstituteArgs<C>,
+  ) {
     if (typeof substitute === 'function') {
       substitute = substitute(args);
     }

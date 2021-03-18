@@ -18,14 +18,17 @@ export class HTMLProcessor<C extends ViolComponent> extends Processor<C> {
     });
   }
 
-  private processSubstitute(substitute: TemplateSubstitute<C>, args: SubstituteArgs<C>): string {
+  private processSubstitute(
+    substitute: TemplateSubstitute<C>,
+    args: SubstituteArgs<C>,
+  ): string {
     if (typeof substitute === 'function') {
       substitute = substitute(args);
     }
     return this.ensureArray(substitute).reduce((template: string, item) => {
       if (item instanceof ViolComponent) {
         if (item === args.self) {
-          throw new Error('[Viol] Error: components cannot be used in their own templates (infinite recursion)');
+          throw new Error('[Viol] Error: cannot reference component in its own template');
         }
         item.parent = args.self;
         template += processComponent(item);

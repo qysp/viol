@@ -8,7 +8,7 @@ export const createElement = <R extends HTMLElement = HTMLElement>(tagName: stri
   const element = document.createElement(tagName);
   element.innerHTML = innerHTML;
   return element as R;
-}
+};
 
 export const createFragment = (html: string): DocumentFragment => {
   const template = createElement<HTMLTemplateElement>('template', html);
