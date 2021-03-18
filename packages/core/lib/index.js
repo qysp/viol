@@ -185,7 +185,7 @@ const getComponent = (name) => {
     var _a;
     return (_a = window.ViolComponents.get(name)) !== null && _a !== void 0 ? _a : null;
 };
-const createApp = (component, root) => {
+const createApp = (component, root, options) => {
     var _a;
     const alpine = (_a = window.deferLoadingAlpine) !== null && _a !== void 0 ? _a : ((cb) => cb());
     window.deferLoadingAlpine = (callback) => {
@@ -204,6 +204,11 @@ const createApp = (component, root) => {
             }
         });
     };
+    if (Array.isArray(options === null || options === void 0 ? void 0 : options.with)) {
+        for (const initializer of options.with) {
+            initializer();
+        }
+    }
 };
 
 if (!('ViolComponents' in window)) {

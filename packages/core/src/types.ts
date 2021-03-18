@@ -15,6 +15,10 @@ type IsEmpty<T, Y = true, N = false> = T extends { [key: string]: never } ? Y : 
 type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
 type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
 
+export type CreateAppOptions = {
+  with?: Function[];
+};
+
 export type State = Record<string, any>;
 export type Props = Record<string, any>;
 

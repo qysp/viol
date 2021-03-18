@@ -32,6 +32,9 @@ declare type IsEmpty<T, Y = true, N = false> = T extends {
 } ? Y : N;
 declare type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
 declare type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
+declare type CreateAppOptions = {
+    with?: Function[];
+};
 declare type State = Record<string, any>;
 declare type Props = Record<string, any>;
 declare type ComponentDef<C extends ViolComponent> = {
@@ -104,6 +107,6 @@ declare function Component<C extends ViolComponent>(def: ComponentDef<C>): Class
 declare const html: <C extends ViolComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: TemplateSubstitute<C>[]) => HTMLProcessor<C>;
 declare const css: <C extends ViolComponent<any, any>>(strings: TemplateStringsArray, ...substitutes: StylesSubstitute<C>[]) => CSSProcessor<C>;
 declare const getComponent: <C extends ViolComponent<any, any> = ViolComponent<any, any>>(name: string) => C | null;
-declare const createApp: <C extends ViolComponent<any, any>>(component: C, root: HTMLElement) => void;
+declare const createApp: <C extends ViolComponent<any, any>>(component: C, root: HTMLElement, options?: CreateAppOptions | undefined) => void;
 
-export { Alpine, AlpineComponent, AlpineElement, Component, ComponentDef, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, TemplateSubstituteFunction, TemplateSubstituteValue, ViolComponent, createApp, css, getComponent, html };
+export { Alpine, AlpineComponent, AlpineElement, Component, ComponentDef, CreateAppOptions, Props, State, Styles, StylesFunction, StylesSubstitute, Substitute, SubstituteArgs, Template, TemplateFunction, TemplateSubstitute, TemplateSubstituteFunction, TemplateSubstituteValue, ViolComponent, createApp, css, getComponent, html };

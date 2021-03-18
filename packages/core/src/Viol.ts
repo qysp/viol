@@ -1,5 +1,5 @@
 import { ViolComponent } from './Component';
-import { ComponentDef, StylesSubstitute, TemplateSubstitute } from './types';
+import { ComponentDef, CreateAppOptions, StylesSubstitute, TemplateSubstitute } from './types';
 import { CSSProcessor, HTMLProcessor } from './internal/processors';
 import { processComponent } from './internal/components';
 import { createElement } from './internal/util';
@@ -35,7 +35,7 @@ export const getComponent = <C extends ViolComponent = ViolComponent>(name: stri
   return window.ViolComponents.get(name) as C ?? null;
 };
 
-export const createApp = <C extends ViolComponent>(component: C, root: HTMLElement) => {
+export const createApp = <C extends ViolComponent>(component: C, root: HTMLElement, options?: CreateAppOptions) => {
   const alpine: (callback: Function) => void = window.deferLoadingAlpine ?? ((cb) => cb());
   window.deferLoadingAlpine = (callback: Function) => {
     alpine(callback);
@@ -56,5 +56,11 @@ export const createApp = <C extends ViolComponent>(component: C, root: HTMLEleme
         component.$data.onAfterInit();
       }
     });
+  }
+  if (Array.isArray(options?.with)) {
+    // Run each initializer.
+    for (const initializer of options!.with) {
+      initializer();
+    }
   }
 };
