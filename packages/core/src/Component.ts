@@ -55,6 +55,7 @@ export interface ViolComponent<S extends State, P extends Props> {
 
   onInit?(): void;
   onAfterInit?(): void;
+  onDestroy?(): void;
 }
 
 export class ViolComponent<S extends State = any, P extends Props = any> {

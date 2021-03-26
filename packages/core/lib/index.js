@@ -2,6 +2,22 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const observedElements = new Set();
+const onDestroyObserver = new MutationObserver((records) => {
+    for (const record of records) {
+        for (const node of Array.from(record.removedNodes)) {
+            if (observedElements.has(node)) {
+                observedElements.delete(node);
+            }
+            if ('__x' in node) {
+                const { __x: component } = node;
+                if (typeof component.$data.onDestroy === 'function') {
+                    component.$data.onDestroy();
+                }
+            }
+        }
+    }
+});
 const UidGenerator = (function* (id = 0) {
     while (++id)
         yield (id + Math.random()).toString(36);
@@ -15,6 +31,14 @@ const createElement = (tagName, innerHTML) => {
 const createFragment = (html) => {
     const template = createElement('template', html);
     return template.content;
+};
+const observeOnDestroy = (component) => {
+    const parent = component.$el.parentElement;
+    if (parent === null || observedElements.has(parent)) {
+        return;
+    }
+    observedElements.add(parent);
+    onDestroyObserver.observe(parent, { childList: true });
 };
 
 const generateName = (component) => {
@@ -194,6 +218,9 @@ const createApp = (component, root, options) => {
         const styleSheet = createElement('style', window.ViolStyles.join(''));
         document.head.appendChild(styleSheet);
         window.Alpine.onBeforeComponentInitialized((component) => {
+            if ((options === null || options === void 0 ? void 0 : options.emitOnDestroy) === true) {
+                observeOnDestroy(component);
+            }
             if (typeof component.$data.onInit === 'function') {
                 component.$data.onInit();
             }

@@ -34,6 +34,7 @@ declare type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
 declare type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
 declare type CreateAppOptions = {
     with?: Function[];
+    emitOnDestroy?: boolean;
 };
 declare type State = Record<string, any>;
 declare type Props = Record<string, any>;
@@ -96,6 +97,7 @@ interface ViolComponent<S extends State, P extends Props> {
     readonly $watch: (property: string, callback: (value: unknown) => void) => void;
     onInit?(): void;
     onAfterInit?(): void;
+    onDestroy?(): void;
 }
 declare class ViolComponent<S extends State = any, P extends Props = any> {
     readonly name: string;

@@ -2,7 +2,7 @@ import { ViolComponent } from './Component';
 import { ComponentDef, CreateAppOptions, StylesSubstitute, TemplateSubstitute } from './types';
 import { CSSProcessor, HTMLProcessor } from './internal/processors';
 import { processComponent } from './internal/components';
-import { createElement } from './internal/util';
+import { observeOnDestroy, createElement } from './internal/util';
 
 export function Component<C extends ViolComponent>(def: ComponentDef<C>): ClassDecorator {
   return (target) => {
@@ -46,6 +46,9 @@ export const createApp = <C extends ViolComponent>(component: C, root: HTMLEleme
     document.head.appendChild(styleSheet);
     // Set up onInit listener.
     window.Alpine.onBeforeComponentInitialized((component) => {
+      if (options?.emitOnDestroy === true) {
+        observeOnDestroy(component);
+      }
       if (typeof component.$data.onInit === 'function') {
         component.$data.onInit();
       }

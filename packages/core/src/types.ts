@@ -16,7 +16,16 @@ type PropsOf<C> = C extends ViolComponent<State, infer P> ? P : never;
 type StateOf<C> = C extends ViolComponent<infer S, Props> ? S : never;
 
 export type CreateAppOptions = {
+  /**
+   * Initializers which are called after Viol renders the components.
+   */
   with?: Function[];
+  /**
+   * Whether the onDestroy hook should be executed when a component is removed from the DOM.
+   * This utilizes a MutationObserver to listen for DOM changes which can be expensive.
+   * @default false
+   */
+  emitOnDestroy?: boolean;
 };
 
 export type State = Record<string, any>;
