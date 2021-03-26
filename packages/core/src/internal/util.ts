@@ -1,19 +1,30 @@
 import { AlpineComponent, AlpineElement } from '../types';
 
+const callOnDestroy = (element: AlpineElement<any, any>): void => {
+  element.__x.$data.onDestroy?.();
+};
+
 const observedElements = new Set<Node>();
 const onDestroyObserver: MutationObserver = new MutationObserver((records) => {
   for (const record of records) {
-    for (const node of Array.from(record.removedNodes)) {
+    record.removedNodes.forEach((node) => {
+      // Remove node if it was being observed.
       if (observedElements.has(node)) {
         observedElements.delete(node);
       }
-      if ('__x' in node) {
-        const { __x: component } = node as AlpineElement<any, any>;
-        if (typeof component.$data.onDestroy === 'function') {
-          component.$data.onDestroy();
+      // Ensure node is an element.
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        // Call `onDestroy` hook for node if it's a Viol component.
+        if (element.hasAttribute('x-name')) {
+          callOnDestroy(element as AlpineElement<any, any>);
         }
+        // Iterate all of its child components and call their `onDestroy` hook.
+        element.querySelectorAll('[x-name]').forEach((component) => {
+          callOnDestroy(component as AlpineElement<any, any>);
+        });
       }
-    }
+    });
   }
 });
 
