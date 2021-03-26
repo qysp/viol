@@ -2,20 +2,27 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+const callOnDestroy = (element) => {
+    var _a, _b;
+    (_b = (_a = element.__x.$data).onDestroy) === null || _b === void 0 ? void 0 : _b.call(_a);
+};
 const observedElements = new Set();
 const onDestroyObserver = new MutationObserver((records) => {
     for (const record of records) {
-        for (const node of Array.from(record.removedNodes)) {
+        record.removedNodes.forEach((node) => {
             if (observedElements.has(node)) {
                 observedElements.delete(node);
             }
-            if ('__x' in node) {
-                const { __x: component } = node;
-                if (typeof component.$data.onDestroy === 'function') {
-                    component.$data.onDestroy();
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                const element = node;
+                if (element.hasAttribute('x-name')) {
+                    callOnDestroy(element);
                 }
+                element.querySelectorAll('[x-name]').forEach((component) => {
+                    callOnDestroy(component);
+                });
             }
-        }
+        });
     }
 });
 const UidGenerator = (function* (id = 0) {
