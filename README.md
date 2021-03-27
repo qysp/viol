@@ -38,7 +38,7 @@ Using the `css` tag you can use the component's selector and therefore make the 
   })
   class ColorExample extends ViolComponent<{}, { color: string }> { }
 
-  @Component({
+  @Component<App>({
     template: html`
       ${new ColorExample({ color: 'red' })}
       ${new ColorExample({ color: 'blue' })}
@@ -47,6 +47,63 @@ Using the `css` tag you can use the component's selector and therefore make the 
   class App extends ViolComponent { }
 
   createApp(new App(), document.getElementById('root')!);
+  ```
+
+</details>
+
+### `onDestroy` method
+
+This method will be automatically called if the component __was__ destroyed (i.e. removed from the DOM).
+
+In order for Viol to detect its removal from the DOM, you need to set the `emitOnDestroy` option.
+This utilizes the MutationObserver which might have a negative impact on the performance of your app.
+
+<details>
+
+  <summary>How to use:</summary>
+
+  ```ts
+  @Component<SimpleComponent>({
+    template: ({ props }) => `
+      <p>Hello ${props.thing}!</p>
+    `,
+  })
+  class SimpleComponent extends ViolComponent<{}, { thing: string }> {
+    onDestroy() {
+      console.log(`The ${this.props.thing} was destroyed!`);
+    }
+  }
+
+  @Component<App>({
+    template: html`
+      <div>
+        <template x-if="state.condition">
+          ${new SimpleComponent({ thing: 'World' })}
+        </template>
+        <template x-if="!state.condition">
+          ${new SimpleComponent({ thing: 'Universe' })}
+        </template>
+      </div>
+    `,
+    state: {
+      condition: true,
+    },
+  })
+  class App extends ViolComponent<{ condition: boolean }> {
+    private id!: NodeJS.Timeout;
+
+    onInit() {
+      this.id = setInterval(() => this.state.condition = !this.state.condition, 3000);
+    }
+
+    onDestroy() {
+      clearInterval(this.id);
+    }
+  }
+
+  createApp(new App(), document.getElementById('root')!, {
+    emitOnDestroy: true, // this must be set to true!
+  });
   ```
 
 </details>
@@ -85,9 +142,13 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
     },
   })
   export class Counter extends ViolComponent<{
-    intervalId: null | number;
+    intervalId: null | NodeJS.Timeout;
     time: number;
   }> {
+    onDestroy() {
+      this.reset();
+    }
+
     onClick(): void {
       if (this.state.intervalId !== null) {
         this.stop();
@@ -116,11 +177,14 @@ Okay, just kidding. This _feature_ will hopefully be removed in the future.
     }
 
     reset(): void {
+      this.stop();
       this.state.time = 20;
     }
   }
 
-  createApp(new Counter(), document.getElementById('root')!);
+  createApp(new Counter(), document.getElementById('root')!, {
+    emitOnDestroy: true,
+  });
   ```
 
 </details>
